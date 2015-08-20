@@ -173,6 +173,23 @@ $(function() {
         });
     }
 
+    function deleteUser($this) {
+        var email = $this.find('#log-in-email').val();
+        var password = $this.find('#log-in-pass').val();
+
+        ref.removeUser({
+            email    : email,
+            password : password
+        }, function(error) {
+            if (error === null) {
+                console.log("User removed successfully");
+            }
+            else {
+                console.log("Error removing user:", error);
+            }
+        });
+    }
+
     // ---------------------------------- Event Listeners -----------------------------------
 
     $('form').submit(function(evt) {
@@ -197,6 +214,9 @@ $(function() {
                 break;
             case 'change-pass':
                 changePassword($this);
+                break;
+            case 'delete-user':
+                deleteUser($this);
                 break;
             default:
                 console.log('didn\'t recognize the form id');
