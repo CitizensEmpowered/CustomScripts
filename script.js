@@ -200,6 +200,7 @@ $(function() {
             password : password
         }, function(error) {
             if (error === null) {
+                alert('Your account has been successfully deleted');
                 console.log("User removed successfully");
             }
             else {
