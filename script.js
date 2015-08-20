@@ -12,13 +12,18 @@ $(function() {
     function handleUserData(snapshot) {
         var data = snapshot.val();
 
+        if (!data) {
+            console.log('Child (user) data is gone');
+            return;
+        }
+
         console.log('Got updated user data:', data);
 
         signedInUserInfo = data;
 
-        $('#give-info-address').val(data.address || '');
-        $('#give-info-city').val(data.city || '');
-        $('#give-info-state').val(data.state || '');
+        $('#give-info-address').val(data.address);
+        $('#give-info-city').val(data.city);
+        $('#give-info-state').val(data.state);
     }
     function handleUserDataError(errorObject) {
         console.log("The read failed: " + errorObject.code);
