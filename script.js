@@ -66,6 +66,7 @@ $(function() {
             }
             else {
                 console.log("Successfully created user account with uid:", userData.uid);
+                alert('You\'re signed up!');
 
                 // Log in to set their email
                 ref.authWithPassword({
@@ -127,6 +128,7 @@ $(function() {
                 console.log("Login Failed!", error);
             }
             else {
+                alert('You\'re logged in!');
                 console.log("Authenticated successfully with payload:", authData);
             }
         });
