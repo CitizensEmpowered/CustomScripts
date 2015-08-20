@@ -16,9 +16,9 @@ $(function() {
 
         signedInUserInfo = data;
 
-        $('#give-info-address').val(data.address);
-        $('#give-info-city').val(data.city);
-        $('#give-info-state').val(data.state);
+        $('#give-info-address').val(data.address || '');
+        $('#give-info-city').val(data.city || '');
+        $('#give-info-state').val(data.state || '');
     }
     function handleUserDataError(errorObject) {
         console.log("The read failed: " + errorObject.code);
@@ -37,6 +37,7 @@ $(function() {
             ref.child(authData.uid).on('value', handleUserData, handleUserDataError);
         } else {
             signedInUser = null;
+            signedInUserInfo = null;
             console.log("User is logged out");
         }
     });
@@ -174,8 +175,20 @@ $(function() {
     }
 
     function deleteUser($this) {
-        var email = $this.find('#delete-user-email').val();
+        var email = signedInUserInfo.email;
         var password = $this.find('#delete-user-pass').val();
+
+        if (!signedInUser) {
+            alert('Must be signed in to delete your account');
+        }
+
+        ref.child(signedInUser).remove(function(error) {
+            if (error) {
+                console.log('Removing user data failed');
+            } else {
+                console.log('Removing user data succeeded');
+            }
+        });
 
         ref.removeUser({
             email    : email,
