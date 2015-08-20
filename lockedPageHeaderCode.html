@@ -12,13 +12,16 @@
 </style>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
-<script src="https://rawgit.com/CitizensEmpowered/logInSystem/master/script.js"></script>
+<script src="https://rawgit.com/CitizensEmpowered/logInSystem/master/locked-page.js"></script>
 
 <div id="page-blocker">
     Making sure you're logged in, please wait...
 </div>
 
 <script>
-    if (window.top.location.href.indexOf('config') !== -1)
+    var REDIRECT_DEST = '//www.citizensempowered.org/';
+    var SQUARE_SPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1);
+    if (SQUARE_SPACE_CONFIG) {
         document.getElementById('page-blocker').style.display = 'none';
+    }
 </script>

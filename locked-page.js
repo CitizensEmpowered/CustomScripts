@@ -1,5 +1,3 @@
-var REDIRECT_DEST = 'http://www.citizensempowered.org/';
-
 $(function() {
     // ---------------------------------- Semi-Globals --------------------------------------
 
@@ -63,57 +61,6 @@ $(function() {
         return text;
     }
 
-    function signUp($this) {
-        var email = $this.find('#sign-up-email').val();
-        var password = createRandomPassword(20);
-
-        ref.createUser({
-            email:      email,
-            password:   password
-        }, function(error, userData) {
-            if (error) {
-                console.log("Error creating user:", error);
-            }
-            else {
-                console.log("Successfully created user account with uid:", userData.uid);
-                alert('You\'re signed up!');
-
-                // Log in to set their email
-                ref.authWithPassword({
-                    email:      email,
-                    password:   password
-                }, function(error, authData) {
-                    if (error) {
-                        console.log("Login Failed!", error);
-                    }
-                    else {
-                        console.log("Authenticated successfully with payload:", authData);
-
-                        // Set the email
-                        ref.child(authData.uid).set({
-                            email: email
-                        });
-
-                        // Log them out again
-                        ref.unauth();
-                    }
-                });
-
-                // Immediately reset their password
-                ref.resetPassword({
-                    email: email
-                }, function(error) {
-                    if (error) {
-                        console.log("Error sending password reset email:", error);
-                    }
-                    else {
-                        console.log("Password reset email sent successfully");
-                    }
-                });
-            }
-        });
-    }
-
     function giveInfo($this) {
         var address = $this.find('#give-info-address').val(),
             city = $this.find('#give-info-city').val(),
@@ -123,24 +70,6 @@ $(function() {
             address: address,
             city: city,
             state: state
-        });
-    }
-
-    function logIn($this) {
-        var email = $this.find('#log-in-email').val();
-        var password = $this.find('#log-in-pass').val();
-
-        ref.authWithPassword({
-            email:      email,
-            password:   password
-        }, function(error, authData) {
-            if (error) {
-                console.log("Login Failed!", error);
-            }
-            else {
-                alert('You\'re logged in!');
-                console.log("Authenticated successfully with payload:", authData);
-            }
         });
     }
 
