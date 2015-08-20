@@ -174,8 +174,8 @@ $(function() {
     }
 
     function deleteUser($this) {
-        var email = $this.find('#log-in-email').val();
-        var password = $this.find('#log-in-pass').val();
+        var email = $this.find('#delete-user-email').val();
+        var password = $this.find('#delete-user-pass').val();
 
         ref.removeUser({
             email    : email,
