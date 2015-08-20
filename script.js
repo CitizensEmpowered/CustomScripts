@@ -1,5 +1,6 @@
+var REDIRECT_DEST = 'http://www.citizensempowered.org/';
+
 $(function() {
-    
     // ---------------------------------- Semi-Globals --------------------------------------
 
     var ref = new Firebase("https://ce-testing.firebaseio.com/users");
@@ -36,14 +37,17 @@ $(function() {
             // console.log(authData);
             console.log("User " + authData.uid + " is logged in with " + authData.provider);
             signedInUser = authData.uid;
+            $('#page-blocker').hide();
             // console.log('Signed in:', signedInUser.email);
 
             // Act on the user's data
             ref.child(authData.uid).on('value', handleUserData, handleUserDataError);
         } else {
+            window.location.replace('http://www.citizensempowered.org/');
             signedInUser = null;
             signedInUserInfo = null;
             console.log("User is logged out");
+
         }
     });
 

@@ -1,3 +1,24 @@
+<style>
+    #page-blocker {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: white;
+        width: 100%;
+        height: 100vh;
+        font-size: 50px;
+        z-index: 1001; /* Gotta beat the header */
+    }
+</style>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
 <script src="https://rawgit.com/CitizensEmpowered/logInSystem/master/script.js"></script>
+
+<div id="page-blocker">
+    Making sure you're logged in, please wait...
+</div>
+
+<script>
+    if (window.top.location.href.indexOf('config') !== -1)
+        document.getElementById('page-blocker').style.display = 'none';
+</script>
