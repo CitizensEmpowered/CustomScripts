@@ -72,7 +72,7 @@ $(function() {
             }
             else {
                 console.log("Successfully created user account with uid:", userData.uid);
-                alert('You\'re signed up!');
+                alert('You\'re signed up, check your email within the next few minutes for your temporary password!');
 
                 // Log in to set their email
                 ref.authWithPassword({
@@ -121,10 +121,27 @@ $(function() {
             state: state
         });
     }
+ 
+    function logIn($this) {
+        var email = $this.find('#log-in-email').val();
+        var password = $this.find('#log-in-pass').val();
+
+        ref.authWithPassword({
+            email:      email,
+            password:   password
+        }, function(error, authData) {
+            if (error) {
+                console.log("Login Failed!", error);
+            }
+            else {
+                alert('You\'re logged in!');
+                console.log("Authenticated successfully with payload:", authData);
+            }
+        });
+    }
 
     function logOut($this) {
         ref.unauth(); // Will ping the onAuth method of 'ref'
-        window.location.href = REDIRECT_DEST;
     }
 
     function changePassword($this) {

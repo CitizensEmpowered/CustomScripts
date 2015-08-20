@@ -149,14 +149,8 @@ $(function() {
         var $this = $(this);
 
         switch ($this.attr('id')) {
-            case 'sign-up':
-                signUp($this);
-                break;
             case 'give-info':
                 giveInfo($this);
-                break;
-            case 'log-in':
-                logIn($this);
                 break;
             case 'log-out':
                 logOut($this);
