@@ -206,7 +206,7 @@ $(function() {
                     console.log("Error changing password:", error);
                 }
                 else {
-                    console.log("Password changed successfully");
+                    alert("Password changed successfully");
                 }
             });
         }
@@ -236,26 +236,28 @@ $(function() {
             alert('Must be signed in to delete your account');
         }
 
-        ref.child(signedInUser).remove(function(error) {
-            if (error) {
-                console.log('Removing user data failed');
-            } else {
-                console.log('Removing user data succeeded');
-            }
-        });
+        if (confirm('Did you mean to delete your entire account (not undo-able)?')) {
+            ref.child(signedInUser).remove(function(error) {
+                if (error) {
+                    console.log('Removing user data failed');
+                } else {
+                    console.log('Removing user data succeeded');
+                }
+            });
 
-        ref.removeUser({
-            email    : email,
-            password : password
-        }, function(error) {
-            if (error === null) {
-                alert('Your account has been successfully deleted');
-                console.log("User removed successfully");
-            }
-            else {
-                console.log("Error removing user:", error);
-            }
-        });
+            ref.removeUser({
+                email    : email,
+                password : password
+            }, function(error) {
+                if (error === null) {
+                    alert('Your account has been successfully deleted');
+                    console.log("User removed successfully");
+                }
+                else {
+                    console.log("Error removing user:", error);
+                }
+            });
+        }
     }
 
     // ---------------------------------- Event Listeners -----------------------------------
