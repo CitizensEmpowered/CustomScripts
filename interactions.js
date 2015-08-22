@@ -236,7 +236,7 @@ $(function() {
             alert('Must be signed in to delete your account');
         }
 
-        if (confirm('Did you mean to delete your entire account (not undo-able)?')) {
+        if (confirm('Did you mean to delete your entire account (not reversible)?')) {
             ref.child(signedInUser).remove(function(error) {
                 if (error) {
                     console.log('Removing user data failed');

@@ -6,8 +6,14 @@
         background: white;
         width: 100%;
         height: 100vh;
-        font-size: 50px;
         z-index: 1001; /* Gotta beat the header */
+    }
+
+    .wait-message {
+        width: 100%;
+        margin-top: 200px;
+        font-size: 30px;
+        text-align: center;
     }
 </style>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -15,13 +21,15 @@
 <script src="https://rawgit.com/CitizensEmpowered/logInSystem/master/locked-page.js"></script>
 
 <div id="page-blocker">
-    Making sure you're logged in, please wait...
+    <div class="wait-message">
+        Making sure you're logged in, please wait...
+    </div>
 </div>
 
 <script>
     var REDIRECT_DEST = '//www.citizensempowered.org/';
-    var SQUARE_SPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1);
-    if (SQUARE_SPACE_CONFIG) {
+    var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1);
+    if (SQUARESPACE_CONFIG) {
         document.getElementById('page-blocker').style.display = 'none';
     }
 </script>

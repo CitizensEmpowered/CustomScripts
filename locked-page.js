@@ -41,11 +41,12 @@ $(function() {
             // Act on the user's data
             ref.child(authData.uid).on('value', handleUserData, handleUserDataError);
         } else {
-            window.location.replace('//www.citizensempowered.org/');
             signedInUser = null;
             signedInUserInfo = null;
             console.log("User is logged out");
-
+            if (!SQUARESPACE_CONFIG) {
+                window.location.replace('//www.citizensempowered.org/');
+            }
         }
     });
 
