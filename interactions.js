@@ -188,22 +188,28 @@ $(function() {
     }
 
     function changePassword($this) {
-        var email       = $this.find('#change-pass-email').val();
+        var email       = signedInUserInfo.email;
         var oldPassword = $this.find('#change-pass-pass-old').val();
-        var newPassword = $this.find('#change-pass-pass-new').val();
+        var newPassword = $this.find('#change-pass-pass-new1').val();
+        var newPasswordVerify = $this.find('#change-pass-pass-new2').val();
 
-        ref.changePassword({
-            email       : email,
-            oldPassword : oldPassword,
-            newPassword : newPassword
-        }, function(error) {
-            if (error) {
-                console.log("Error changing password:", error);
-            }
-            else {
-                console.log("Password changed successfully");
-            }
-        });
+        if (newPassword !== newPasswordVerify) {
+            alert('The passwords did not match');
+        }
+        else {
+            ref.changePassword({
+                email       : email,
+                oldPassword : oldPassword,
+                newPassword : newPassword
+            }, function(error) {
+                if (error) {
+                    console.log("Error changing password:", error);
+                }
+                else {
+                    console.log("Password changed successfully");
+                }
+            });
+        }
     }
 
     function resetPassword($this) {
