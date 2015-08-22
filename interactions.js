@@ -2,6 +2,7 @@ $(function() {
     // ---------------------------------- Semi-Globals --------------------------------------
 
     var ref = new Firebase("https://ce-testing.firebaseio.com/users");
+    var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account';
 
     var signedInUser;
     var signedInUserInfo;
@@ -134,13 +135,14 @@ $(function() {
                 console.log("Login Failed!", error);
             }
             else {
-                alert('You\'re logged in!');
-                console.log("Authenticated successfully with payload:", authData);
+                window.location.href = YOUR_ACCOUNT_PAGE;
+                // console.log("Authenticated successfully with payload:", authData);
+                // alert('You\'re logged in!');
             }
         });
     }
 
-    function logOut($this) {
+    function logOut() {
         ref.unauth(); // Will ping the onAuth method of 'ref'
     }
 
@@ -241,4 +243,6 @@ $(function() {
                 console.log('didn\'t recognize the form id');
         }
     });
+
+    $('#log-out').click(logOut);
 });
