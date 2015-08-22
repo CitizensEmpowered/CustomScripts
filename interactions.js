@@ -2,7 +2,8 @@ $(function() {
     // ---------------------------------- Semi-Globals --------------------------------------
 
     var ref = new Firebase("https://ce-testing.firebaseio.com/users");
-    var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account';
+    var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account',
+        HOME_PAGE = 'http://www.citizensempowered.org/';
 
     var signedInUser;
     var signedInUserInfo;
@@ -52,10 +53,18 @@ $(function() {
             // Act on the user's data
             ref.child(authData.uid).on('value', handleUserData, handleUserDataError);
         } else {
+            var wasSignedIn = false;
+            if (signedInUser) {
+                wasSignedIn = true;
+            }
             signedInUser = null;
             signedInUserInfo = null;
             console.log("User is logged out");
 
+            if (wasSignedIn) {
+                console.log('User was logged in and logged out, redirecting');
+                redirectTo(HOME_PAGE);
+            }
         }
     });
 
