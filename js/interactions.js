@@ -2,6 +2,7 @@ $(function() {
     // ---------------------------------- Semi-Globals --------------------------------------
 
     var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account',
+        LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up',
         HOME_PAGE = 'http://www.citizensempowered.org/';
 
     var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1),
@@ -72,13 +73,13 @@ $(function() {
 
                 if (wasSignedIn) {
                     console.log('User was logged in and logged out, redirecting');
-                    redirectTo(HOME_PAGE);
+                    redirectTo(LOG_IN_PAGE);
                 }
                 else {
                     console.log("User is logged out");
                     if (PAGE_LOCKED) {
                         alert('You\'re not signed in, redirecting you to the home page.');
-                        window.location.replace(HOME_PAGE);
+                        window.location.replace(LOG_IN_PAGE);
                     }
                 }
             }
