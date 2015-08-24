@@ -5,12 +5,12 @@ $(function() {
     function handleNewTopic(snapshot) {
         var data = snapshot.val();
 
-        console.log(data);
+        console.log('Got topic:', data);
 
         for (var key in data) {
             var topic = data[key];
 
-            $topicsContainer.append($('<div>', { html: JSON.stringify(topic) }));
+            $topicsContainer.append($('<div>', { html: JSON.stringify(topic, 2) }));
         }
     }
 
@@ -19,12 +19,6 @@ $(function() {
     }
 
     if ($topicsContainer.length) {
-        console.log('Loading because container');
         topicRef.once('value', handleNewTopic, handleNewTopicError);
     }
-    else {
-        console.log('Not loading because no container');
-    }
-
-    console.log('here');
 });
