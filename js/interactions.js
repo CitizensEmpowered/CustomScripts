@@ -1,3 +1,8 @@
+// ---------------------------------- Globals -------------------------------------------
+
+var signedInUser;
+var signedInUserInfo;
+
 $(function() {
     // ---------------------------------- Semi-Globals --------------------------------------
 
@@ -20,8 +25,6 @@ $(function() {
         var ref = new Firebase('https://ce-testing.firebaseio.com/');
         var userRef = ref.child('users');
         var topicRef = ref.child('topics');
-        var signedInUser;
-        var signedInUserInfo;
 
         // ---------------------------------- Helper Functions ----------------------------------
 
