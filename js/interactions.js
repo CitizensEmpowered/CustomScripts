@@ -162,8 +162,9 @@ $(function() {
                 dataObj[id] = $elem.val();
             });
 
-
             var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUser);
+
+            console.log(dataObj);
 
             specificRef[appending ? 'push' : 'update'](dataObj);
         }
