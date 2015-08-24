@@ -36,19 +36,26 @@ $(function() {
 
             signedInUserInfo = data;
 
-            if ($('form#give-info').length) {
-                $('#give-info-first-name').val(signedInUserInfo.firstName);
-                $('#give-info-last-name').val(signedInUserInfo.lastName);
-                $('#give-info-address1').val(signedInUserInfo.address1);
-                $('#give-info-address2').val(signedInUserInfo.address2);
-                $('#give-info-city').val(signedInUserInfo.city);
-                $('#give-info-state').val(signedInUserInfo.state);
-                $('#give-info-zip').val(signedInUserInfo.zip);
-                $('#give-info-country').val(signedInUserInfo.country);
-                $('#give-info-phone-area').val(signedInUserInfo.phoneArea);
-                $('#give-info-phone-three').val(signedInUserInfo.phoneThree);
-                $('#give-info-phone-four').val(signedInUserInfo.phoneFour);
-                $('#give-info-email').val(signedInUserInfo.email);
+            var $giveInfoForm = $('form#give-info');
+            if ($giveInfoForm.length) {
+                var formId = 'give-info';
+                $giveInfoForm.find('input, textarea, select').each(function() {
+                    var $elem = $(this);
+                    var key = $elem.attr('id').replace(formId + '__', '');
+                    $elem.val(signedInUserInfo[key]);
+                });
+                // $('#give-info-first-name').val(signedInUserInfo.firstName);
+                // $('#give-info-last-name').val(signedInUserInfo.lastName);
+                // $('#give-info-address1').val(signedInUserInfo.address1);
+                // $('#give-info-address2').val(signedInUserInfo.address2);
+                // $('#give-info-city').val(signedInUserInfo.city);
+                // $('#give-info-state').val(signedInUserInfo.state);
+                // $('#give-info-zip').val(signedInUserInfo.zip);
+                // $('#give-info-country').val(signedInUserInfo.country);
+                // $('#give-info-phone-area').val(signedInUserInfo.phoneArea);
+                // $('#give-info-phone-three').val(signedInUserInfo.phoneThree);
+                // $('#give-info-phone-four').val(signedInUserInfo.phoneFour);
+                // $('#give-info-email').val(signedInUserInfo.email);
             }
         }
         function handleUserDataError(errorObject) {
