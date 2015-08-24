@@ -154,45 +154,20 @@ $(function() {
         }
 
         function submitUserData(collection, appending, $this) {
-            // var firstName   = $this.find('#give-info-first-name').val(),
-            //     lastName    = $this.find('#give-info-last-name').val(),
-            //     address1    = $this.find('#give-info-address1').val(),
-            //     address2    = $this.find('#give-info-address2').val(),
-            //     city        = $this.find('#give-info-city').val(),
-            //     state       = $this.find('#give-info-state').val(),
-            //     zip         = $this.find('#give-info-zip').val(),
-            //     country     = $this.find('#give-info-country').val(),
-            //     phoneArea   = $this.find('#give-info-phone-area').val(),
-            //     phoneThree  = $this.find('#give-info-phone-three').val(),
-            //     phoneFour   = $this.find('#give-info-phone-four').val(),
-            //     email       = $this.find('#give-info-email').val();
 
             var dataObj = {};
 
-            $this.find('input:not([type=submit]), textarea, select').each(function() {
-                dataObj[$(this).attr('id')] = $(this).val();
-            });
+            var formId = $this.attr('id');
 
-            // console.log(dataObj);
+            $this.find('input:not([type=submit]), textarea, select').each(function() {
+                var $elem = $(this);
+                var id = $elem.attr('id').replace(formId + '__', '');
+                dataObj[id] = $elem.val();
+            });
 
             var specificRef = collection === 'topics' ? topicRef : userRef;
 
             specificRef.child(signedInUser)[appending ? 'push' : 'update'](dataObj);
-
-            // userRef.child(signedInUser).update({
-            //     firstName: firstName,
-            //     lastName: lastName,
-            //     address1: address1,
-            //     address2: address2,
-            //     city: city,
-            //     state: state,
-            //     zip: zip,
-            //     country: country,
-            //     phoneArea: phoneArea,
-            //     phoneThree: phoneThree,
-            //     phoneFour: phoneFour,
-            //     email: email
-            // });
         }
      
         function logIn($this) {
