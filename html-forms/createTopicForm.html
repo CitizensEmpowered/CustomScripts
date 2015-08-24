@@ -1,29 +1,62 @@
-<div class="sqs-block form-block sqs-block-form" style="padding: 0;">
+<div class="sqs-block form-block sqs-block-form" data-block-type="9">
   <div class="sqs-block-content">
     <div class="form-wrapper">
       <div class="form-inner-wrapper">
-        <form autocomplete="on" id="change-pass">
+        <form id="create-topic" autocomplete="on" action="https://citizens-empowered.squarespace.com" method="POST" onsubmit="return (function(form) { Y.use
+        ('squarespace-form-submit', 'node',
+        function (Y) { (new Y.Squarespace.FormSubmit({ formNode: Y.Node(form) })).submit('55da7966e4b0d420c0e39565', '55d4f266e4b0b8db60352944') }); return false;})(this)">
 
           <div class="field-list clear">
 
+            <div class="form-item field text required">
+              <label class="title">Title <span class="required">*</span></label>
+              <input id="create-topic-title" class="field-element text" type="text" placeholder="The title of your topic">
+            </div>
+
+            <div class="form-item field select">
+              <label class="title">Category</label>
+              <select id="create-topic-category">
+                <option value="Greece">Greece</option>
+                <option value="France">France</option>
+                <option value="Germany">Germany</option>
+              </select>
+            </div>
+
+            <div class="form-item field select">
+              <label class="title">Sub-Category</label>
+              <select id="create-topic-sub-category">
+                <option value="Hamburg">Hamburg</option>
+                <option value="Paris">Paris</option>
+                <option value="Athens">Athens</option>
+              </select>
+            </div>
+
+            <div class="form-item field textarea required">
+              <label class="title">Description <span class="required">*</span></label>
+              <textarea id="create-topic-description" class="field-element "></textarea>
+            </div>
+
             <div class="form-item field text">
-              <label class="title" for="change-pass-pass">New Password <span class="required">*</span></label>
-              <input class="field-element" type="password" id="change-pass-pass-new1">
+              <label class="title">Scope</label>
+              <input id="create-topic-scope" class="field-element text" type="text">
             </div>
 
-            <div class="form-item field password required">
-              <label class="title" for="change-pass-pass">New Password Again <span class="required">*</span></label>
-              <input class="field-element" type="password" id="change-pass-pass-new2">
+            <div class="form-item field text">
+              <label class="title">Location</label>
+              <input id="create-topic-location" class="field-element text" type="text">
+            </div>
+
+            <div class="form-item field website">
+              <label class="title">External Link</label>
+              <input id="create-topic-external-link" class="field-element" type="text" spellcheck="false">
+              <div class="prefix">http://</div>
             </div>
 
           </div>
-
           <div class="form-button-wrapper form-button-wrapper--align-left">
-            <input class="button sqs-system-button sqs-editable-button" type="submit" value="Change Password">
+            <input class="button sqs-system-button sqs-editable-button" type="submit" value="Submit">
           </div>
-
         </form>
-
       </div>
     </div>
   </div>
