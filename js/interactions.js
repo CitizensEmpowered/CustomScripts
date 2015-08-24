@@ -151,7 +151,7 @@ $(function() {
             });
         }
 
-        function submitUserData($this) {
+        function submitUserData(collection, appending, $this) {
             // var firstName   = $this.find('#give-info-first-name').val(),
             //     lastName    = $this.find('#give-info-last-name').val(),
             //     address1    = $this.find('#give-info-address1').val(),
@@ -168,12 +168,12 @@ $(function() {
             var dataObj = {};
 
             $this.find('input:not([type=submit]), textarea, select').each(function() {
-                console.log($(this).attr('id'));
-                console.log($(this).val());
                 dataObj[$(this).attr('id')] = $(this).val();
             });
 
             console.log(dataObj);
+
+            ref.child(signedInUser)[appending ? 'push' : 'update'](dataObj);
 
             // ref.child(signedInUser).update({
             //     firstName: firstName,
@@ -293,19 +293,16 @@ $(function() {
             evt.preventDefault();
             var $this = $(this);
             var handler;
-            var collection;
 
             switch ($this.attr('id')) {
                 case 'sign-up':
                     handler = signUp;
                     break;
                 case 'give-info':
-                    handler = submitUserData;
-                    collection = 'users';
+                    handler = submitUserData.bind(null, 'users', false);
                     break;
                 case 'create-topic':
-                    handler = submitUserData;
-                    collection = 'topics';
+                    handler = submitUserData.bind(null, 'topics', true);
                     break;
                 case 'log-in':
                     handler = logIn;
@@ -326,7 +323,7 @@ $(function() {
                     console.log('didn\'t recognize the form id:', $this.attr('id'));
             }
 
-            handler($this, collection);
+            handler($this);
         });
 
         $('#log-out').click(logOut);
