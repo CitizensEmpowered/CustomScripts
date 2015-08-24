@@ -11,4 +11,6 @@ $(function() {
     if (topicsContainer.length) {
         topicRef.on('value', handleNewTopic);
     }
+
+    console.log('here');
 });
