@@ -4,7 +4,8 @@ $(function() {
     var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account',
         HOME_PAGE = 'http://www.citizensempowered.org/';
 
-    var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1);
+    var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1),
+        PAGE_LOCKED = (typeof LOCKED_PAGE !== 'undefined');
 
     function initializeEverything() {
         var ref = new Firebase("https://ce-testing.firebaseio.com/users");
@@ -12,6 +13,12 @@ $(function() {
         var signedInUserInfo;
 
         // ---------------------------------- Helper Functions ----------------------------------
+
+        function unlockPage() {
+            if (PAGE_LOCKED) {
+                document.getElementById('page-blocker').style.display = 'none';
+            }
+        }
 
         function handleUserData(snapshot) {
             var data = snapshot.val();
@@ -52,21 +59,26 @@ $(function() {
                 console.log("User " + authData.uid + " is logged in with " + authData.provider);
                 signedInUser = authData.uid;
                 // console.log('Signed in:', signedInUser.email);
+                unlockPage();
 
                 // Act on the user's data
                 ref.child(authData.uid).on('value', handleUserData, handleUserDataError);
             } else {
-                var wasSignedIn = false;
-                if (signedInUser) {
-                    wasSignedIn = true;
-                }
+                var wasSignedIn = signedInUser ? true : false;
+
                 signedInUser = null;
                 signedInUserInfo = null;
-                console.log("User is logged out");
 
                 if (wasSignedIn) {
                     console.log('User was logged in and logged out, redirecting');
                     redirectTo(HOME_PAGE);
+                }
+                else {
+                    console.log("User is logged out");
+                    if (LOCKED_PAGE) {
+                        alert('You\'re not signed in, redirecting you to the home page.');
+                        window.location.replace(HOME_PAGE);
+                    }
                 }
             }
         });
@@ -303,9 +315,7 @@ $(function() {
     }
 
     if (SQUARESPACE_CONFIG) {
-        if (typeof LOCKED_PAGE !== 'undefined') {
-            document.getElementById('page-blocker').style.display = 'none';
-        }
+        unlockPage();
     }
     else {
         initializeEverything();
