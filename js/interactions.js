@@ -167,7 +167,7 @@ $(function() {
 
             var dataObj = {};
 
-            $this.find('input, textarea, select').forEach(function() {
+            $this.find('input:not([type=submit]), textarea, select').each(function() {
                 console.log($(this).attr('id'));
                 console.log($(this).val());
                 dataObj[$(this).attr('id')] = $(this).val();
