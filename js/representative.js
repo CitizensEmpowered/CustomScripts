@@ -10,10 +10,12 @@ $(function() {
                 result.results.forEach(function(rep) {
                     var $div = $('<div>');
                     $div.append($('<a>', { text: 'contact', href: rep.contact_form, target: '_blank' }));
-                    $div.append($('<div>', { html: rep.first_name }));
-                    $div.append($('<div>', { html: rep.middle_name }));
-                    $div.append($('<div>', { html: rep.last_name }));
-                    $div.append($('<div>', { html: '(' + rep.party + ')' }));
+                    var $subDiv = $('<div>');
+                    $subDiv.append($('<span>', { html: rep.first_name }));
+                    $subDiv.append($('<span>', { html: ' ' + rep.middle_name }));
+                    $subDiv.append($('<span>', { html: ' ' + rep.last_name }));
+                    $subDiv.append($('<span>', { html: ' (' + rep.party + ')' }));
+                    $div.append($subDiv);
                     $repInfoContainer.append($div);
                 });
             });
