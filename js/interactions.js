@@ -161,9 +161,9 @@ $(function() {
                 dataObj[id] = $elem.val();
             });
 
-            var specificRef = collection === 'topics' ? topicRef : userRef;
+            var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUser);
 
-            specificRef.child(signedInUser)[appending ? 'push' : 'update'](dataObj);
+            specificRef[appending ? 'push' : 'update'](dataObj);
         }
      
         function logIn($this) {
