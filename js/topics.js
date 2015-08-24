@@ -11,6 +11,9 @@ $(function() {
     if (topicsContainer.length) {
         topicRef.on('value', handleNewTopic);
     }
+    else {
+        console.log('Not loading because no container');
+    }
 
     console.log('here');
 });
