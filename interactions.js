@@ -75,7 +75,7 @@ $(function() {
                 }
                 else {
                     console.log("User is logged out");
-                    if (LOCKED_PAGE) {
+                    if (PAGE_LOCKED) {
                         alert('You\'re not signed in, redirecting you to the home page.');
                         window.location.replace(HOME_PAGE);
                     }
