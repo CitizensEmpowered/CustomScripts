@@ -9,7 +9,7 @@ $(function() {
             $.get('https://congress.api.sunlightfoundation.com/legislators/locate?zip=' + signedInUserInfo.zip + '&apikey=dd1efa0eb1134301ab43db5864ba5e78', function(result) {
                 result.results.forEach(function(rep) {
                     var $div = $('<div>');
-                    $div.append($('<a>', { text: 'contact', href: rep.contact_form, target: '_blank' }));
+                    $div.append($('<a>', { text: 'Contact them online', href: rep.contact_form, target: '_blank' }));
                     var $subDiv = $('<div>');
                     $subDiv.append($('<span>', { html: rep.first_name }));
                     $subDiv.append($('<span>', { html: ' ' + rep.middle_name }));
