@@ -303,7 +303,9 @@ $(function() {
     }
 
     if (SQUARESPACE_CONFIG) {
-        document.getElementById('page-blocker').style.display = 'none';
+        if (typeof LOCKED_PAGE !== 'undefined') {
+            document.getElementById('page-blocker').style.display = 'none';
+        }
     }
     else {
         initializeEverything();
