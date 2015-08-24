@@ -16,7 +16,9 @@ $(function() {
     }
 
     function initializeEverything() {
-        var ref = new Firebase("https://ce-testing.firebaseio.com/users");
+        var ref = new Firebase("https://ce-testing.firebaseio.com/");
+        var userRef = ref.child('users');
+        var topicRef = ref.child('topics');
         var signedInUser;
         var signedInUserInfo;
 
@@ -55,7 +57,7 @@ $(function() {
 
         // ---------------------------------- Main Behavior Functions ---------------------------
 
-        ref.onAuth(function authDataCallback(authData) {
+        userRef.onAuth(function authDataCallback(authData) {
             if (authData) {
                 // console.log(authData);
                 console.log("User " + authData.uid + " is logged in with " + authData.provider);
@@ -64,7 +66,7 @@ $(function() {
                 unlockPage();
 
                 // Act on the user's data
-                ref.child(authData.uid).on('value', handleUserData, handleUserDataError);
+                userRef.child(authData.uid).on('value', handleUserData, handleUserDataError);
             } else {
                 var wasSignedIn = signedInUser ? true : false;
 
@@ -105,7 +107,7 @@ $(function() {
             var email = $this.find('#sign-up-email').val();
             var password = createRandomPassword(20);
 
-            ref.createUser({
+            userRef.createUser({
                 email:      email,
                 password:   password
             }, function(error, userData) {
@@ -117,7 +119,7 @@ $(function() {
                     alert('You\'re signed up, check your email within the next few minutes for your temporary password!');
 
                     // Log in to set their email
-                    ref.authWithPassword({
+                    userRef.authWithPassword({
                         email:      email,
                         password:   password
                     }, function(error, authData) {
@@ -128,7 +130,7 @@ $(function() {
                             console.log("Authenticated successfully with payload:", authData);
 
                             // Set the email
-                            ref.child(authData.uid).set({
+                            userRef.child(authData.uid).set({
                                 email: email
                             });
 
@@ -137,7 +139,7 @@ $(function() {
                     });
 
                     // Immediately reset their password
-                    ref.resetPassword({
+                    userRef.resetPassword({
                         email: email
                     }, function(error) {
                         if (error) {
@@ -171,11 +173,13 @@ $(function() {
                 dataObj[$(this).attr('id')] = $(this).val();
             });
 
-            console.log(dataObj);
+            // console.log(dataObj);
 
-            ref.child(signedInUser)[appending ? 'push' : 'update'](dataObj);
+            var specificRef = collection === 'topics' ? topicRef : userRef;
 
-            // ref.child(signedInUser).update({
+            specificRef.child(signedInUser)[appending ? 'push' : 'update'](dataObj);
+
+            // userRef.child(signedInUser).update({
             //     firstName: firstName,
             //     lastName: lastName,
             //     address1: address1,
@@ -195,7 +199,7 @@ $(function() {
             var email = $this.find('#log-in-email').val();
             var password = $this.find('#log-in-pass').val();
 
-            ref.authWithPassword({
+            userRef.authWithPassword({
                 email:      email,
                 password:   password
             }, function(error, authData) {
@@ -211,7 +215,7 @@ $(function() {
         }
 
         function logOut() {
-            ref.unauth(); // Will ping the onAuth method of 'ref'
+            userRef.unauth(); // Will ping the onAuth method of 'userRef'
         }
 
         function changePassword($this) {
@@ -224,7 +228,7 @@ $(function() {
                 alert('The passwords did not match');
             }
             else {
-                ref.changePassword({
+                userRef.changePassword({
                     email       : email,
                     oldPassword : oldPassword,
                     newPassword : newPassword
@@ -243,7 +247,7 @@ $(function() {
             var email = $this.find('#reset-pass-email').val() || signedInUserInfo.email;
             console.log('Resetting pass for:', email);
 
-            ref.resetPassword({
+            userRef.resetPassword({
                 email: email
             }, function(error) {
                 if (error) {
@@ -264,7 +268,7 @@ $(function() {
             }
 
             if (confirm('Did you mean to delete your entire account (not reversible)?')) {
-                ref.child(signedInUser).remove(function(error) {
+                userRef.child(signedInUser).remove(function(error) {
                     if (error) {
                         console.log('Removing user data failed');
                     } else {
@@ -272,7 +276,7 @@ $(function() {
                     }
                 });
 
-                ref.removeUser({
+                userRef.removeUser({
                     email    : email,
                     password : password
                 }, function(error) {
