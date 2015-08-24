@@ -17,7 +17,7 @@ $(function() {
     }
 
     function initializeEverything() {
-        var ref = new Firebase("https://ce-testing.firebaseio.com/");
+        var ref = new Firebase('https://ce-testing.firebaseio.com/');
         var userRef = ref.child('users');
         var topicRef = ref.child('topics');
         var signedInUser;
@@ -48,7 +48,7 @@ $(function() {
             }
         }
         function handleUserDataError(errorObject) {
-            console.log("The read failed: " + errorObject.code);
+            console.log('The read failed: ' + errorObject.code);
         }
 
         // ---------------------------------- Main Behavior Functions ---------------------------
@@ -56,7 +56,7 @@ $(function() {
         userRef.onAuth(function authDataCallback(authData) {
             if (authData) {
                 // console.log(authData);
-                console.log("User " + authData.uid + " is logged in with " + authData.provider);
+                console.log('User ' + authData.uid + ' is logged in with ' + authData.provider);
                 signedInUser = authData.uid;
                 // console.log('Signed in:', signedInUser.email);
                 unlockPage();
@@ -74,7 +74,7 @@ $(function() {
                     redirectTo(LOG_IN_PAGE);
                 }
                 else {
-                    console.log("User is logged out");
+                    console.log('User is logged out');
                     if (PAGE_LOCKED) {
                         alert('You\'re not signed in, redirecting you to the home page.');
                         window.location.replace(LOG_IN_PAGE);
@@ -85,8 +85,8 @@ $(function() {
 
         function createRandomPassword(length) {
             length = length || 20;
-            var text = "";
-            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var text = '';
+            var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
             for(var i = 0; i < length; ++i) {
                 text += possible.charAt(Math.floor(Math.random() * possible.length));
@@ -108,10 +108,10 @@ $(function() {
                 password:   password
             }, function(error, userData) {
                 if (error) {
-                    console.log("Error creating user:", error);
+                    console.log('Error creating user:', error);
                 }
                 else {
-                    console.log("Successfully created user account with uid:", userData.uid);
+                    console.log('Successfully created user account with uid:', userData.uid);
                     alert('You\'re signed up, check your email within the next few minutes for your temporary password!');
 
                     // Log in to set their email
@@ -120,10 +120,10 @@ $(function() {
                         password:   password
                     }, function(error, authData) {
                         if (error) {
-                            console.log("Login Failed!", error);
+                            console.log('Login Failed!', error);
                         }
                         else {
-                            console.log("Authenticated successfully with payload:", authData);
+                            console.log('Authenticated successfully with payload:', authData);
 
                             // Set the email
                             userRef.child(authData.uid).set({
@@ -139,10 +139,10 @@ $(function() {
                         email: email
                     }, function(error) {
                         if (error) {
-                            console.log("Error sending password reset email:", error);
+                            console.log('Error sending password reset email:', error);
                         }
                         else {
-                            console.log("Password reset email sent successfully");
+                            console.log('Password reset email sent successfully');
                         }
                     });
                 }
@@ -152,7 +152,7 @@ $(function() {
         function submitUserData(collection, appending, $this) {
 
             var dataObj = {};
-            dataObj["uid"] = signedInUser;
+            dataObj.uid = signedInUser;
 
             var formId = $this.attr('id');
 
@@ -178,11 +178,11 @@ $(function() {
                 password:   password
             }, function(error, authData) {
                 if (error) {
-                    console.log("Login Failed!", error);
+                    console.log('Login Failed!', error);
                 }
                 else {
                     redirectTo(YOUR_ACCOUNT_PAGE);
-                    // console.log("Authenticated successfully with payload:", authData);
+                    // console.log('Authenticated successfully with payload:', authData);
                     // alert('You\'re logged in!');
                 }
             });
@@ -208,10 +208,10 @@ $(function() {
                     newPassword : newPassword
                 }, function(error) {
                     if (error) {
-                        console.log("Error changing password:", error);
+                        console.log('Error changing password:', error);
                     }
                     else {
-                        alert("Password changed successfully");
+                        alert('Password changed successfully');
                     }
                 });
             }
@@ -225,10 +225,10 @@ $(function() {
                 email: email
             }, function(error) {
                 if (error) {
-                    console.log("Error sending password reset email:", error);
+                    console.log('Error sending password reset email:', error);
                 }
                 else {
-                    console.log("Password reset email sent successfully");
+                    console.log('Password reset email sent successfully');
                 }
             });
         }
@@ -256,10 +256,10 @@ $(function() {
                 }, function(error) {
                     if (error === null) {
                         alert('Your account has been successfully deleted');
-                        console.log("User removed successfully");
+                        console.log('User removed successfully');
                     }
                     else {
-                        console.log("Error removing user:", error);
+                        console.log('Error removing user:', error);
                     }
                 });
             }
