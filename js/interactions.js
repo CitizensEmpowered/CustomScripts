@@ -152,6 +152,7 @@ $(function() {
         function submitUserData(collection, appending, $this) {
 
             var dataObj = {};
+            dataObj.uid = signedInUser;
 
             var formId = $this.attr('id');
 
@@ -160,6 +161,7 @@ $(function() {
                 var id = $elem.attr('id').replace(formId + '__', '');
                 dataObj[id] = $elem.val();
             });
+
 
             var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUser);
 
