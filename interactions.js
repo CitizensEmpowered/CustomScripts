@@ -6,6 +6,13 @@ $(function() {
 
     var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1),
         PAGE_LOCKED = (typeof LOCKED_PAGE !== 'undefined');
+        
+
+    function unlockPage() {
+        if (PAGE_LOCKED) {
+            document.getElementById('page-blocker').style.display = 'none';
+        }
+    }
 
     function initializeEverything() {
         var ref = new Firebase("https://ce-testing.firebaseio.com/users");
@@ -13,12 +20,6 @@ $(function() {
         var signedInUserInfo;
 
         // ---------------------------------- Helper Functions ----------------------------------
-
-        function unlockPage() {
-            if (PAGE_LOCKED) {
-                document.getElementById('page-blocker').style.display = 'none';
-            }
-        }
 
         function handleUserData(snapshot) {
             var data = snapshot.val();
