@@ -152,7 +152,7 @@ $(function() {
         function submitUserData(collection, appending, $this) {
 
             var dataObj = {};
-            dataObj.uid = signedInUser;
+            dataObj["uid"] = signedInUser;
 
             var formId = $this.attr('id');
 
