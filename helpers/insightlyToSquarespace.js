@@ -27,7 +27,7 @@ function adaptForm(htmlForm) {
                 var $oldInput = $(this);
 
                 var labelText = $oldInput.prev().text();
-                var newId = 'give-info-' + labelText.toLowerCase()
+                var newId = 'give-info__' + labelText.toLowerCase()
                     .replace(/^\s+/gi, '')
                     .replace(/\s+$/gi, '')
                     .replace(/[^\w\s]/gi, '')
