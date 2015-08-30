@@ -11,34 +11,40 @@ function adaptForm(htmlForm) {
 
             var $squarespaceForm = $('<div>', { 'class': 'sqs-block form-block sqs-block-form', style: 'padding: 0;' });
 
-            var $currLevel = $squarespaceForm.append($('<div>', { 'class': 'sqs-block-content' })).find('div');
-            $currLevel = $currLevel.append($('<div>', { 'class': 'form-wrapper' })).find('div');
-            $currLevel = $currLevel.append($('<div>', { 'class': 'form-inner-wrapper' })).find('div');
-            $currLevel = $currLevel.append($('<form>', { 'autocomplete': 'on', 'id': 'PLACEHOLDER' })).find('form');
+            var $currLevel = $squarespaceForm.append($('<div>', { 'class': 'sqs-block-content' })).children('div');
+            $currLevel = $currLevel.append($('<div>', { 'class': 'form-wrapper' })).children('div');
+            $currLevel = $currLevel.append($('<div>', { 'class': 'form-inner-wrapper' })).children('div');
+            $currLevel = $currLevel.append($('<form>', { 'autocomplete': 'on', 'id': 'give-info' })).children('form');
 
-            $currLevel.append($('input[name=formId]'));
+            $currLevel.append($('input[type=hidden]'));
 
-            $currLevel = $currLevel.append($('<div>', { 'class': 'field-list clear' })).find('div');
+            $currLevel = $currLevel.append($('<div>', { 'class': 'field-list clear' })).children('div');
 
             // console.log($('#insightly_background').prev().prop('tagName'));
 
-            $('input[type=text]').each(function(index) {
+            $('input[type=text], textarea').each(function(index) {
                 // console.log($(this).attr('name'));
                 var $oldInput = $(this);
 
                 var labelText = $oldInput.prev().text();
-                var newId = labelText.toLowerCase()
+                var newId = 'give-info-' + labelText.toLowerCase()
                     .replace(/^\s+/gi, '')
                     .replace(/\s+$/gi, '')
                     .replace(/[^\w\s]/gi, '')
                     .replace(/ /g, '-');
 
-                var $inputHolder = $('<div>', { 'class': 'form-item field' });
-                $inputHolder.append($('<label>', { 'class': 'title', 'for': newId, 'text': labelText }));
-                $inputHolder.append($('<input>', { 'class': 'field-element', 'id': newId, 'name': $oldInput.attr('name'), 'type': 'text', 'spellcheck': 'false' }));
-                $currLevel.append($inputHolder);
+                var oldInputType = $oldInput.prop('tagName');
 
+                var $inputHolder = $('<div>', { 'class': 'form-item field ' + (oldInputType === 'INPUT' ? 'text' : 'textarea') });
+                $inputHolder.append($('<label>', { 'class': 'title', 'for': newId, 'text': labelText }));
+                $inputHolder.append($('<' + oldInputType + '>', { 'class': 'field-element', 'id': newId, 'name': $oldInput.attr('name'), 'type': 'text', 'spellcheck': 'false' }));
+                $currLevel.append($inputHolder);
             });
+
+            $currLevel = $currLevel.parent();
+            $currLevel = $currLevel.append($('<div>', { 'class': 'form-button-wrapper form-button-wrapper--align-left' })).children('div:nth-of-type(2)');
+
+            $currLevel.append($('<input>', { 'class': 'button sqs-system-button sqs-editable-button', 'type': 'submit', 'value': 'Update Account Information' }));
 
             resolve($squarespaceForm.prop('outerHTML'));
         });

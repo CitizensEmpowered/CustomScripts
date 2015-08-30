@@ -9,7 +9,7 @@ $(function() {
     var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account',
         LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up',
         HOME_PAGE = 'http://www.citizensempowered.org/',
-        ALL_FORM_INPUTS_SELECTOR = 'input:not([type=submit]), textarea, select';
+        ALL_FORM_INPUTS_SELECTOR = 'input:not([type=submit], [type=hidden]), textarea, select';
 
     var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1),
         PAGE_LOCKED = (typeof LOCKED_PAGE !== 'undefined');
