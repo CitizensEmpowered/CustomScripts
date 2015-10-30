@@ -22,7 +22,7 @@ $(function() {
     }
 
     function initializeEverything() {
-        var ref = new Firebase('https://ce-testing.firebaseio.com/');
+        var ref = new Firebase('https://citizensempowered.firebaseio.com/');
         var userRef = ref.child('users');
         var topicRef = ref.child('topics');
 
@@ -45,7 +45,7 @@ $(function() {
                 var formId = 'give-info';
                 $giveInfoForm.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
                     var $elem = $(this);
-                    var key = $elem.attr('id').replace(formId + '__', '');
+                    var key = $elem.attr('id');
                     $elem.val(signedInUserInfo[key]);
                 });
             }
@@ -161,7 +161,7 @@ $(function() {
 
             $this.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
                 var $elem = $(this);
-                var id = $elem.attr('id').replace(formId + '__', '');
+                var id = $elem.attr('id');
                 dataObj[id] = $elem.val();
             });
 
@@ -173,8 +173,8 @@ $(function() {
         }
      
         function logIn($this) {
-            var email = $this.find('#log-in-email').val();
-            var password = $this.find('#log-in-pass').val();
+            var email = $this.find('input#email').val();
+            var password = $this.find('input#password').val();
 
             userRef.authWithPassword({
                 email:      email,
@@ -197,9 +197,9 @@ $(function() {
 
         function changePassword($this) {
             var email       = signedInUserInfo.email;
-            var oldPassword = $this.find('#change-pass-pass-old').val();
-            var newPassword = $this.find('#change-pass-pass-new1').val();
-            var newPasswordVerify = $this.find('#change-pass-pass-new2').val();
+            var oldPassword = $this.find('input#password-old').val();
+            var newPassword = $this.find('input#password-new1').val();
+            var newPasswordVerify = $this.find('input#password-new2').val();
 
             if (newPassword !== newPasswordVerify) {
                 alert('The passwords did not match');
@@ -221,7 +221,7 @@ $(function() {
         }
 
         function resetPassword($this) {
-            var email = $this.find('#reset-pass-email').val() || signedInUserInfo.email;
+            var email = $this.find('input#email').val() || signedInUserInfo.email;
             console.log('Resetting pass for:', email);
 
             userRef.resetPassword({
@@ -238,7 +238,7 @@ $(function() {
 
         function deleteUser($this) {
             var email = signedInUserInfo.email;
-            var password = $this.find('#delete-user-pass').val();
+            var password = $this.find('input#password').val();
 
             if (!signedInUser) {
                 alert('Must be signed in to delete your account');
@@ -291,10 +291,10 @@ $(function() {
                 case 'log-out':
                     handler = logOut;
                     break;
-                case 'reset-pass':
+                case 'reset-password':
                     handler = resetPassword;
                     break;
-                case 'change-pass':
+                case 'change-password':
                     handler = changePassword;
                     break;
                 case 'delete-user':

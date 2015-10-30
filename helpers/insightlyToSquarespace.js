@@ -5,7 +5,7 @@ var fs = require('fs'),
 function adaptForm(htmlForm) {
     return new Promise(function(resolve, reject) {
         env(htmlForm, function(err, window) {
-            var $ = require('jquery')(window);
+            var $ = jQuery(window);
 
             $('br').remove();
 

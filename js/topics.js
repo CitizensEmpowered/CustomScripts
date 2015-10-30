@@ -1,5 +1,5 @@
 $(function() {
-    var topicRef = new Firebase('https://ce-testing.firebaseio.com/topics');
+    var topicRef = new Firebase('https://citizensempowered.firebaseio.com/topics');
     var $topicsContainer = $('.topic-viewer');
 
     function handleNewTopic(snapshot) {
