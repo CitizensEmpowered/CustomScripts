@@ -1,12 +1,5 @@
-// ---------------------------------- Globals -------------------------------------------
-
-var signedInUser;
-var signedInUserEmail;
-var signedInUserInfo;
-var firebaseRef;
-
 $(function() {
-    // ---------------------------------- Semi-Globals --------------------------------------
+    // ---------------------------------- "Globals" ------------------------------------------------
 
     // var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account', // Redirected to this upon logging in
     var YOUR_ACCOUNT_PAGE = '/web-testing/', // Redirected to this upon logging in
@@ -17,7 +10,10 @@ $(function() {
 
     var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1),
         PAGE_LOCKED = (typeof LOCKED_PAGE !== 'undefined');
-        
+
+    var signedInUser;
+    var signedInUserEmail;
+    var firebaseRef;
 
     function unlockPage() {
         if (PAGE_LOCKED) {
@@ -42,14 +38,12 @@ $(function() {
 
             console.log('Got updated user data:', data);
 
-            signedInUserInfo = data;
-
             var $userInfoForm = $('form#update-user');
             if ($userInfoForm.length) {
                 $userInfoForm.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
                     var $elem = $(this);
                     var key = $elem.attr('id');
-                    $elem.val(signedInUserInfo[key]);
+                    $elem.val(data[key]);
                 });
             }
         }
@@ -72,7 +66,6 @@ $(function() {
                 var wasSignedIn = signedInUser ? true : false;
 
                 signedInUser = null;
-                signedInUserInfo = null;
 
                 if (wasSignedIn) {
                     console.log('User was logged in and logged out, redirecting');
@@ -119,26 +112,6 @@ $(function() {
                 else {
                     console.log('Successfully created user account with uid:', userData.uid);
                     alert('You\'re signed up, check your email within the next few minutes for your temporary password!');
-
-                    // // Log in to set their email
-                    // firebaseRef.authWithPassword({
-                    //     email:      email,
-                    //     password:   password
-                    // }, function(error, authData) {
-                    //     if (error) {
-                    //         console.log('Login Failed!', error);
-                    //     }
-                    //     else {
-                    //         console.log('Authenticated successfully with payload:', authData);
-
-                    //         // Set the email
-                    //         userRef.child(authData.uid).set({
-                    //             email: email
-                    //         });
-
-                    //         redirectTo(YOUR_ACCOUNT_PAGE);
-                    //     }
-                    // });
 
                     // Immediately reset their password
                     userRef.resetPassword({
