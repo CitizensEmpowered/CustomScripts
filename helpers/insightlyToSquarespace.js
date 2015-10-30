@@ -14,7 +14,7 @@ function adaptForm(htmlForm) {
             var $currLevel = $squarespaceForm.append($('<div>', { 'class': 'sqs-block-content' })).children('div');
             $currLevel = $currLevel.append($('<div>', { 'class': 'form-wrapper' })).children('div');
             $currLevel = $currLevel.append($('<div>', { 'class': 'form-inner-wrapper' })).children('div');
-            $currLevel = $currLevel.append($('<form>', { 'autocomplete': 'on', 'id': 'give-info' })).children('form');
+            $currLevel = $currLevel.append($('<form>', { 'autocomplete': 'on', 'id': 'update-user' })).children('form');
 
             $currLevel.append($('input[type=hidden]'));
 
@@ -27,7 +27,7 @@ function adaptForm(htmlForm) {
                 var $oldInput = $(this);
 
                 var labelText = $oldInput.prev().text();
-                var newId = 'give-info__' + labelText.toLowerCase()
+                var newId = labelText.toLowerCase()
                     .replace(/^\s+/gi, '')
                     .replace(/\s+$/gi, '')
                     .replace(/[^\w\s]/gi, '')

@@ -1,14 +1,18 @@
 // ---------------------------------- Globals -------------------------------------------
 
 var signedInUser;
+var signedInUserEmail;
 var signedInUserInfo;
+var firebaseRef;
 
 $(function() {
     // ---------------------------------- Semi-Globals --------------------------------------
 
-    var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account',
-        LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up',
-        HOME_PAGE = 'http://www.citizensempowered.org/',
+    // var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account', // Redirected to this upon logging in
+    var YOUR_ACCOUNT_PAGE = '/web-testing/', // Redirected to this upon logging in
+        // LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up', // Redirected to this upon logging out
+        LOG_IN_PAGE = '/web-testing/', // Redirected to this upon logging out
+        HOME_PAGE = 'http://www.citizensempowered.org/', // Not really used
         ALL_FORM_INPUTS_SELECTOR = 'input:not([type=submit], [type=hidden]), textarea, select';
 
     var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1),
@@ -22,9 +26,9 @@ $(function() {
     }
 
     function initializeEverything() {
-        var ref = new Firebase('https://citizensempowered.firebaseio.com/');
-        var userRef = ref.child('users');
-        var topicRef = ref.child('topics');
+        firebaseRef = new Firebase('https://citizensempowered.firebaseio.com/');
+        var userRef = firebaseRef.child('users');
+        var topicRef = firebaseRef.child('topics');
 
         // ---------------------------------- Helper Functions ----------------------------------
 
@@ -32,7 +36,7 @@ $(function() {
             var data = snapshot.val();
 
             if (!data) {
-                console.log('Child (user) data is gone');
+                console.log('User has no data');
                 return;
             }
 
@@ -40,10 +44,9 @@ $(function() {
 
             signedInUserInfo = data;
 
-            var $giveInfoForm = $('form#give-info');
-            if ($giveInfoForm.length) {
-                var formId = 'give-info';
-                $giveInfoForm.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
+            var $userInfoForm = $('form#update-user');
+            if ($userInfoForm.length) {
+                $userInfoForm.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
                     var $elem = $(this);
                     var key = $elem.attr('id');
                     $elem.val(signedInUserInfo[key]);
@@ -56,12 +59,11 @@ $(function() {
 
         // ---------------------------------- Main Behavior Functions ---------------------------
 
-        userRef.onAuth(function authDataCallback(authData) {
+        firebaseRef.onAuth(function authDataCallback(authData) {
             if (authData) {
-                // console.log(authData);
-                console.log('User ' + authData.uid + ' is logged in with ' + authData.provider);
                 signedInUser = authData.uid;
-                // console.log('Signed in:', signedInUser.email);
+                signedInUserEmail = authData.password.email;
+                console.log('User', signedInUserEmail, '(', signedInUser, ') is logged in with', authData.provider);
                 unlockPage();
 
                 // Act on the user's data
@@ -103,7 +105,7 @@ $(function() {
         }
 
         function signUp($this) {
-            var email = $this.find('#sign-up-email').val();
+            var email = $this.find('#email').val();
             var password = createRandomPassword(20);
 
             userRef.createUser({
@@ -111,31 +113,32 @@ $(function() {
                 password:   password
             }, function(error, userData) {
                 if (error) {
-                    console.log('Error creating user:', error);
+                    // console.log('Error creating user:', error);
+                    alert('An account with that email already exists');
                 }
                 else {
                     console.log('Successfully created user account with uid:', userData.uid);
                     alert('You\'re signed up, check your email within the next few minutes for your temporary password!');
 
-                    // Log in to set their email
-                    userRef.authWithPassword({
-                        email:      email,
-                        password:   password
-                    }, function(error, authData) {
-                        if (error) {
-                            console.log('Login Failed!', error);
-                        }
-                        else {
-                            console.log('Authenticated successfully with payload:', authData);
+                    // // Log in to set their email
+                    // firebaseRef.authWithPassword({
+                    //     email:      email,
+                    //     password:   password
+                    // }, function(error, authData) {
+                    //     if (error) {
+                    //         console.log('Login Failed!', error);
+                    //     }
+                    //     else {
+                    //         console.log('Authenticated successfully with payload:', authData);
 
-                            // Set the email
-                            userRef.child(authData.uid).set({
-                                email: email
-                            });
+                    //         // Set the email
+                    //         userRef.child(authData.uid).set({
+                    //             email: email
+                    //         });
 
-                            redirectTo(YOUR_ACCOUNT_PAGE);
-                        }
-                    });
+                    //         redirectTo(YOUR_ACCOUNT_PAGE);
+                    //     }
+                    // });
 
                     // Immediately reset their password
                     userRef.resetPassword({
@@ -161,8 +164,7 @@ $(function() {
 
             $this.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
                 var $elem = $(this);
-                var id = $elem.attr('id');
-                dataObj[id] = $elem.val();
+                dataObj[$elem.attr('id')] = $elem.val();
             });
 
             var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUser);
@@ -176,7 +178,7 @@ $(function() {
             var email = $this.find('input#email').val();
             var password = $this.find('input#password').val();
 
-            userRef.authWithPassword({
+            firebaseRef.authWithPassword({
                 email:      email,
                 password:   password
             }, function(error, authData) {
@@ -192,11 +194,11 @@ $(function() {
         }
 
         function logOut() {
-            userRef.unauth(); // Will ping the onAuth method of 'userRef'
+            firebaseRef.unauth(); // Will ping the onAuth method of 'userRef'
         }
 
         function changePassword($this) {
-            var email       = signedInUserInfo.email;
+            var email       = signedInUserEmail;
             var oldPassword = $this.find('input#password-old').val();
             var newPassword = $this.find('input#password-new1').val();
             var newPasswordVerify = $this.find('input#password-new2').val();
@@ -221,7 +223,7 @@ $(function() {
         }
 
         function resetPassword($this) {
-            var email = $this.find('input#email').val() || signedInUserInfo.email;
+            var email = $this.find('input#email').val() || signedInUserEmail;
             console.log('Resetting pass for:', email);
 
             userRef.resetPassword({
@@ -237,14 +239,14 @@ $(function() {
         }
 
         function deleteUser($this) {
-            var email = signedInUserInfo.email;
+            var email = signedInUserEmail;
             var password = $this.find('input#password').val();
 
             if (!signedInUser) {
                 alert('Must be signed in to delete your account');
             }
 
-            if (confirm('Did you mean to delete your entire account (not reversible)?')) {
+            if (confirm('Did you mean to delete your entire account? WARNING: Cannot be undone.')) {
                 userRef.child(signedInUser).remove(function(error) {
                     if (error) {
                         console.log('Removing user data failed');
@@ -279,7 +281,7 @@ $(function() {
                 case 'sign-up':
                     handler = signUp;
                     break;
-                case 'give-info':
+                case 'update-user':
                     handler = submitUserData.bind(null, 'users', false);
                     break;
                 case 'create-topic':
