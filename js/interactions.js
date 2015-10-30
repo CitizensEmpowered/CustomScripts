@@ -1,10 +1,10 @@
 $(function() {
     // ---------------------------------- "Globals" ------------------------------------------------
 
-    // var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account', // Redirected to this upon logging in
-    var YOUR_ACCOUNT_PAGE = '/web-testing/', // Redirected to this upon logging in
-        // LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up', // Redirected to this upon logging out
-        LOG_IN_PAGE = '/web-testing/', // Redirected to this upon logging out
+    var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account', // Redirected to this upon logging in
+    // var YOUR_ACCOUNT_PAGE = '/web-testing/', // Redirected to this upon logging in
+        LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up', // Redirected to this upon logging out
+        // LOG_IN_PAGE = '/web-testing/', // Redirected to this upon logging out
         HOME_PAGE = 'http://www.citizensempowered.org/', // Not really used
         ALL_FORM_INPUTS_SELECTOR = 'input:not([type=submit], [type=hidden]), textarea, select';
 
