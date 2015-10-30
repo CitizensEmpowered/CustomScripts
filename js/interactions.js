@@ -25,7 +25,8 @@ $(function() {
         firebaseRef = new Firebase('https://citizensempowered.firebaseio.com/');
         var userRef = firebaseRef.child('users');
         var topicRef = firebaseRef.child('topics');
-
+        var $topicsContainer = $('.topic-viewer');
+        
         // ---------------------------------- Helper Functions ----------------------------------
 
         function handleUserData(snapshot) {
@@ -49,6 +50,22 @@ $(function() {
         }
         function handleUserDataError(errorObject) {
             console.log('The read failed: ' + errorObject.code);
+        }
+
+        function createRandomPassword(length) {
+            length = length || 20;
+            var text = '';
+            var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+            for(var i = 0; i < length; ++i) {
+                text += possible.charAt(Math.floor(Math.random() * possible.length));
+            }
+
+            return text;
+        }
+
+        function redirectTo(url) {
+            window.location.href = url;
         }
 
         // ---------------------------------- Main Behavior Functions ---------------------------
@@ -81,22 +98,6 @@ $(function() {
             }
         });
 
-        function createRandomPassword(length) {
-            length = length || 20;
-            var text = '';
-            var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-            for(var i = 0; i < length; ++i) {
-                text += possible.charAt(Math.floor(Math.random() * possible.length));
-            }
-
-            return text;
-        }
-
-        function redirectTo(url) {
-            window.location.href = url;
-        }
-
         function signUp($this) {
             var email = $this.find('#email').val();
             var password = createRandomPassword(20);
@@ -126,25 +127,6 @@ $(function() {
                     });
                 }
             });
-        }
-
-        function submitUserData(collection, appending, $this) {
-
-            var dataObj = {};
-            dataObj.uid = signedInUser;
-
-            var formId = $this.attr('id');
-
-            $this.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
-                var $elem = $(this);
-                dataObj[$elem.attr('id')] = $elem.val();
-            });
-
-            var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUser);
-
-            console.log(dataObj);
-
-            specificRef[appending ? 'push' : 'update'](dataObj);
         }
      
         function logIn($this) {
@@ -241,6 +223,44 @@ $(function() {
                     }
                 });
             }
+        }
+
+        function submitUserData(collection, appending, $this) {
+
+            var dataObj = {};
+            dataObj.uid = signedInUser;
+
+            var formId = $this.attr('id');
+
+            $this.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
+                var $elem = $(this);
+                dataObj[$elem.attr('id')] = $elem.val();
+            });
+
+            var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUser);
+
+            console.log(dataObj);
+
+            specificRef[appending ? 'push' : 'update'](dataObj);
+        }
+
+        function handleNewTopic(snapshot) {
+            var data = snapshot.val();
+
+            console.log('Got topic:', data);
+
+            for (var key in data) {
+                var topic = data[key];
+
+                $topicsContainer.append($('<div>', { html: JSON.stringify(topic, 2) }));
+            }
+        }
+        function handleNewTopicError(errorObject) {
+            console.log('The read failed: ' + errorObject.code);
+        }
+
+        if ($topicsContainer.length) {
+            topicRef.once('value', handleNewTopic, handleNewTopicError);
         }
 
         // ---------------------------------- Event Listeners -----------------------------------
