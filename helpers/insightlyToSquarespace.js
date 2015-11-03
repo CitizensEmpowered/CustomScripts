@@ -7,14 +7,22 @@ function adaptForm(htmlForm) {
         env(htmlForm, function(err, window) {
             var $ = jQuery(window);
 
-            $('br').remove();
+            $('br').remove(); // Makes sure that all inputs are direct siblings of their labels
 
-            var $squarespaceForm = $('<div>', { 'class': 'sqs-block form-block sqs-block-form', style: 'padding: 0;' });
+            var $squarespaceHtml = $('<div>', { 'class': 'sqs-block form-block sqs-block-form', style: 'padding: 0;' });
 
-            var $currLevel = $squarespaceForm.append($('<div>', { 'class': 'sqs-block-content' })).children('div');
+            var $oldForm = $('form');
+
+            var $currLevel = $squarespaceHtml.append($('<div>', { 'class': 'sqs-block-content' })).children('div');
             $currLevel = $currLevel.append($('<div>', { 'class': 'form-wrapper' })).children('div');
             $currLevel = $currLevel.append($('<div>', { 'class': 'form-inner-wrapper' })).children('div');
-            $currLevel = $currLevel.append($('<form>', { 'autocomplete': 'on', 'id': 'update-user' })).children('form');
+            $currLevel = $currLevel.append($('<form>', {
+                    'autocomplete': 'on',
+                    'id': 'update-user',
+                    'data-name': $oldForm.attr('name'),
+                    'data-action': $oldForm.attr('action'),
+                    'data-method': $oldForm.attr('method') }))
+                .children('form');
 
             $currLevel.append($('input[type=hidden]'));
 
@@ -46,7 +54,7 @@ function adaptForm(htmlForm) {
 
             $currLevel.append($('<input>', { 'class': 'button sqs-system-button sqs-editable-button', 'type': 'submit', 'value': 'Update Account Information' }));
 
-            resolve($squarespaceForm.prop('outerHTML'));
+            resolve($squarespaceHtml.prop('outerHTML'));
         });
     });
 }

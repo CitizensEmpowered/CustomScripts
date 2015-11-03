@@ -1,0 +1,23 @@
+{
+  "name": "cempowered-custom-scripts",
+  "version": "0.0.1",
+  "description": "",
+  "main": "insightly-proxy/web.js",
+  "scripts": {
+    "start": "node insightly-proxy/web.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CitizensEmpowered/logInSystem.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CitizensEmpowered/logInSystem/issues"
+  },
+  "homepage": "https://github.com/CitizensEmpowered/logInSystem",
+  "dependencies": {
+    "http-proxy": "^1.12.0"
+  }
+}

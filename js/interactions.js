@@ -2,17 +2,18 @@ $(function() {
     // ---------------------------------- "Globals" ------------------------------------------------
 
     var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account', // Redirected to this upon logging in
-    // var YOUR_ACCOUNT_PAGE = '/web-testing/', // Redirected to this upon logging in
         LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up', // Redirected to this upon logging out
-        // LOG_IN_PAGE = '/web-testing/', // Redirected to this upon logging out
         HOME_PAGE = 'http://www.citizensempowered.org/', // Not really used
+        INSIGHTLY_PROXY_URL = 'http://localhost:5000/v2.2/',
+        FIREBASE_URL = 'https://citizensempowered.firebaseio.com/',
         ALL_FORM_INPUTS_SELECTOR = 'input:not([type=submit], [type=hidden]), textarea, select';
 
     var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1),
         PAGE_LOCKED = (typeof LOCKED_PAGE !== 'undefined');
 
-    var signedInUser;
+    var signedInUserFirebaseUid;
     var signedInUserEmail;
+    var signedInUserInsightlyUid;
     var firebaseRef;
 
     function unlockPage() {
@@ -22,11 +23,11 @@ $(function() {
     }
 
     function initializeEverything() {
-        firebaseRef = new Firebase('https://citizensempowered.firebaseio.com/');
+        firebaseRef = new Firebase(FIREBASE_URL);
         var userRef = firebaseRef.child('users');
         var topicRef = firebaseRef.child('topics');
         var $topicsContainer = $('.topic-viewer');
-        
+
         // ---------------------------------- Helper Functions ----------------------------------
 
         function handleUserData(snapshot) {
@@ -72,17 +73,17 @@ $(function() {
 
         firebaseRef.onAuth(function authDataCallback(authData) {
             if (authData) {
-                signedInUser = authData.uid;
+                signedInUserFirebaseUid = authData.uid;
                 signedInUserEmail = authData.password.email;
-                console.log('User', signedInUserEmail, '(', signedInUser, ') is logged in with', authData.provider);
+                console.log('User', signedInUserEmail, '(', signedInUserFirebaseUid, ') is logged in with', authData.provider);
                 unlockPage();
 
                 // Act on the user's data
                 userRef.child(authData.uid).on('value', handleUserData, handleUserDataError);
             } else {
-                var wasSignedIn = signedInUser ? true : false;
+                var wasSignedIn = !!signedInUserFirebaseUid;
 
-                signedInUser = null;
+                signedInUserFirebaseUid = null;
 
                 if (wasSignedIn) {
                     console.log('User was logged in and logged out, redirecting');
@@ -98,8 +99,8 @@ $(function() {
             }
         });
 
-        function signUp($this) {
-            var email = $this.find('#email').val();
+        function signUp($form) {
+            var email = $form.find('#email').val();
             var password = createRandomPassword(20);
 
             userRef.createUser({
@@ -129,9 +130,9 @@ $(function() {
             });
         }
      
-        function logIn($this) {
-            var email = $this.find('input#email').val();
-            var password = $this.find('input#password').val();
+        function logIn($form) {
+            var email = $form.find('input#email').val();
+            var password = $form.find('input#password').val();
 
             firebaseRef.authWithPassword({
                 email:      email,
@@ -152,11 +153,11 @@ $(function() {
             firebaseRef.unauth(); // Will ping the onAuth method of 'userRef'
         }
 
-        function changePassword($this) {
+        function changePassword($form) {
             var email       = signedInUserEmail;
-            var oldPassword = $this.find('input#password-old').val();
-            var newPassword = $this.find('input#password-new1').val();
-            var newPasswordVerify = $this.find('input#password-new2').val();
+            var oldPassword = $form.find('input#password-old').val();
+            var newPassword = $form.find('input#password-new1').val();
+            var newPasswordVerify = $form.find('input#password-new2').val();
 
             if (newPassword !== newPasswordVerify) {
                 alert('The passwords did not match');
@@ -177,8 +178,8 @@ $(function() {
             }
         }
 
-        function resetPassword($this) {
-            var email = $this.find('input#email').val() || signedInUserEmail;
+        function resetPassword($form) {
+            var email = $form.find('input#email').val() || signedInUserEmail;
             console.log('Resetting pass for:', email);
 
             userRef.resetPassword({
@@ -193,16 +194,16 @@ $(function() {
             });
         }
 
-        function deleteUser($this) {
+        function deleteUser($form) {
             var email = signedInUserEmail;
-            var password = $this.find('input#password').val();
+            var password = $form.find('input#password').val();
 
-            if (!signedInUser) {
+            if (!signedInUserFirebaseUid) {
                 alert('Must be signed in to delete your account');
             }
 
             if (confirm('Did you mean to delete your entire account? WARNING: Cannot be undone.')) {
-                userRef.child(signedInUser).remove(function(error) {
+                userRef.child(signedInUserFirebaseUid).remove(function(error) {
                     if (error) {
                         console.log('Removing user data failed');
                     } else {
@@ -225,23 +226,52 @@ $(function() {
             }
         }
 
-        function submitUserData(collection, appending, $this) {
-
+        function submitUserData(collection, appending, isInsightly, $form) {
             var dataObj = {};
-            dataObj.uid = signedInUser;
+            dataObj.uid = signedInUserFirebaseUid;
 
-            var formId = $this.attr('id');
+            var formId = $form.attr('id');
 
-            $this.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
+            $form.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
                 var $elem = $(this);
                 dataObj[$elem.attr('id')] = $elem.val();
             });
 
-            var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUser);
+            var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUserFirebaseUid);
 
-            console.log(dataObj);
+            specificRef[appending ? 'push' : 'update'](dataObj, function() {
+                if (isInsightly) {
+                    sendDataToInsightly($form);
+                }
+            });
+        }
 
-            specificRef[appending ? 'push' : 'update'](dataObj);
+        function sendDataToInsightly($form) {
+            // $form.attr('name', $form.attr('data-name'));
+            // $form.attr('action', $form.attr('data-action'));
+            // $form.attr('method', $form.attr('data-method'));
+
+            // // Note: Can't do a AJAX submission of data, Insightly doesn't allow cross-site requests (for security, probably)
+            // // Maybe should use API
+            // $form.unbind('submit').submit();
+
+            var dataObj = {};
+
+            // console.log('Data destination:', $form.attr('data-action'));
+
+            $form.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
+                var $elem = $(this);
+                // if ($elem.attr('name') === 'Salutation')
+                    dataObj[$elem.attr('name')] = $elem.val();
+            });
+
+            console.log('Insightly data:', dataObj);
+            console.log('Insightly url:', INSIGHTLY_PROXY_URL + 'Contacts');
+
+            $.post(INSIGHTLY_PROXY_URL + 'Contacts', dataObj, function(data, textStatus) {
+                console.log('Got', data, 'from insightly');
+                console.log('Got', textStatus, 'from insightly');
+            });
         }
 
         function handleNewTopic(snapshot) {
@@ -266,19 +296,19 @@ $(function() {
         // ---------------------------------- Event Listeners -----------------------------------
 
         $('form').submit(function(evt) {
-            evt.preventDefault();
-            var $this = $(this);
+            var $form = $(this);
             var handler;
+            var recognized = true;
 
-            switch ($this.attr('id')) {
+            switch ($form.attr('id')) {
                 case 'sign-up':
                     handler = signUp;
                     break;
                 case 'update-user':
-                    handler = submitUserData.bind(null, 'users', false);
+                    handler = submitUserData.bind(null, 'users', false, true);
                     break;
                 case 'create-topic':
-                    handler = submitUserData.bind(null, 'topics', true);
+                    handler = submitUserData.bind(null, 'topics', true, false);
                     break;
                 case 'log-in':
                     handler = logIn;
@@ -296,10 +326,14 @@ $(function() {
                     handler = deleteUser;
                     break;
                 default:
-                    console.log('didn\'t recognize the form id:', $this.attr('id'));
+                    recognized = false;
+                    console.log('[Custom Script] Didn\'t recognize the form id:', $form.attr('id'));
             }
 
-            handler($this);
+            if (recognized) {
+                evt.preventDefault();
+                handler($form);
+            }
         });
 
         $('#log-out').click(logOut);
