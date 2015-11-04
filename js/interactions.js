@@ -222,6 +222,7 @@ $(function() {
                         alert('Password set was unsuccessful - link likely expired or was already used.');
                     }
                     else {
+                        localStorage.removeItem('sign-up-email');
                         alert('Password set successfully');
                     }
                 });
