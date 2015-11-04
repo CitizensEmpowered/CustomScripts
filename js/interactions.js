@@ -213,16 +213,20 @@ $(function() {
             }
         }
 
+        if (localStorage.getItem('sign-up-email')) {
+            $('form#set-password input#email').val(localStorage.getItem('sign-up-email'));
+        }
         function setPasswordFromForm($form) {
-            var email       = localStorage.getItem('sign-up-email');
+            var email       = $form.find('input#email').val();
             var oldPassword = getQueryParameterByName('token');
             var newPassword = $form.find('input#password-new1').val();
             var newPasswordVerify = $form.find('input#password-new2').val();
 
-            console.log()
-
             if (newPassword !== newPasswordVerify) {
                 alert('The passwords did not match');
+            }
+            else if (!email) {
+                alert('The email used to sign up is no longer remembered. It is likely that you have already set your password.');
             }
             else {
                 firebaseRef.changePassword({
