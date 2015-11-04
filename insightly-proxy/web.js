@@ -17,7 +17,8 @@ var ENCODED_API_KEY = new Buffer(API_KEY).toString('base64');
 // 
 var server = http.createServer(function(req, res) {
     // For CORS support - allows AJAX calls
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
+    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
+    res.setHeader('Access-Control-Allow-Origin', 'http://www.citizensempowered.org');
 
     if (req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
