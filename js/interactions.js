@@ -119,7 +119,7 @@ $(function() {
             }
         });
 
-        function signUp($form) {
+        function signUpFromForm($form) {
             var email = $form.find('#email').val();
             var password = createRandomPassword(20);
 
@@ -151,31 +151,34 @@ $(function() {
                 }
             });
         }
-     
-        function logIn($form) {
-            var email = $form.find('input#email').val();
-            var password = $form.find('input#password').val();
 
+        function logIn(email, password) {
             firebaseRef.authWithPassword({
                 email:      email,
                 password:   password
             }, function(error, authData) {
                 if (error) {
                     console.log('Login Failed!', error);
+                    alert('Failed to log you in, likely problem with username or password');
                 }
                 else {
-                    redirectTo(YOUR_ACCOUNT_PAGE);
-                    // console.log('Authenticated successfully with payload:', authData);
                     // alert('You\'re logged in!');
+                    redirectTo(YOUR_ACCOUNT_PAGE);
                 }
             });
         }
+        function logInFromForm($form) {
+            var email = $form.find('input#email').val();
+            var password = $form.find('input#password').val();
 
-        function logOut() {
+            logIn(email, password);
+        }
+
+        function logOutFromForm() {
             firebaseRef.unauth(); // Will ping the onAuth method of 'userRef'
         }
 
-        function changePassword($form) {
+        function changePasswordFromForm($form) {
             var email       = signedInUserEmail;
             var oldPassword = $form.find('input#password-old').val();
             var newPassword = $form.find('input#password-new1').val();
@@ -200,7 +203,7 @@ $(function() {
             }
         }
 
-        function setPassword($form) {
+        function setPasswordFromForm($form) {
             var email       = localStorage.getItem('sign-up-email');
             var oldPassword = getQueryParameterByName('token');
             var newPassword = $form.find('input#password-new1').val();
@@ -224,12 +227,14 @@ $(function() {
                     else {
                         localStorage.removeItem('sign-up-email');
                         alert('Password set successfully');
+
+                        logIn(email, newPassword);
                     }
                 });
             }
         }
 
-        function resetPassword($form) {
+        function resetPasswordFromForm($form) {
             var email = $form.find('input#email').val() || signedInUserEmail;
             console.log('Resetting pass for:', email);
 
@@ -246,7 +251,7 @@ $(function() {
             });
         }
 
-        function deleteUser($form) {
+        function deleteUserFromForm($form) {
             var email = signedInUserEmail;
             var password = $form.find('input#password').val();
 
@@ -399,7 +404,7 @@ $(function() {
 
             switch ($form.attr('id')) {
                 case 'sign-up':
-                    handler = signUp;
+                    handler = signUpFromForm;
                     break;
                 case 'update-user':
                     handler = submitUserData.bind(null, 'users', false, true);
@@ -408,22 +413,22 @@ $(function() {
                     handler = submitUserData.bind(null, 'topics', true, false);
                     break;
                 case 'log-in':
-                    handler = logIn;
+                    handler = logInFromForm;
                     break;
                 case 'log-out':
-                    handler = logOut;
+                    handler = logOutFromForm;
                     break;
                 case 'reset-password':
-                    handler = resetPassword;
+                    handler = resetPasswordFromForm;
                     break;
                 case 'change-password':
-                    handler = changePassword;
+                    handler = changePasswordFromForm;
                     break;
                 case 'set-password':
-                    handler = setPassword;
+                    handler = setPasswordFromForm;
                     break;
                 case 'delete-user':
-                    handler = deleteUser;
+                    handler = deleteUserFromForm;
                     break;
                 default:
                     recognized = false;
@@ -436,7 +441,7 @@ $(function() {
             }
         });
 
-        $('#log-out').click(logOut);
+        $('#log-out').click(logOutFromForm);
     }
 
     if (SQUARESPACE_CONFIG) {
