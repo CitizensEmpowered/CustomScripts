@@ -181,8 +181,11 @@ $(function() {
             logIn(email, password);
         }
 
-        function logOutFromForm() {
+        function logOut() {
             firebaseRef.unauth(); // Will ping the onAuth method of 'firebaseRef'
+        }
+        function logOutFromForm($form) {
+            logOut();
         }
 
         function changePasswordFromForm($form) {
