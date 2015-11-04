@@ -2,9 +2,12 @@ $(function() {
     // ---------------------------------- "Globals" ------------------------------------------------
 
     var YOUR_ACCOUNT_PAGE = 'http://www.citizensempowered.org/your-account', // Redirected to this upon logging in
+    // var YOUR_ACCOUNT_PAGE = 'http://localhost:8080/mock-up-testing/', // Redirected to this upon logging in
         LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up', // Redirected to this upon logging out
+        // LOG_IN_PAGE = 'http://localhost:8080/mock-up-testing/', // Redirected to this upon logging out
         HOME_PAGE = 'http://www.citizensempowered.org/', // Not really used
-        INSIGHTLY_PROXY_URL = 'http://localhost:5000/v2.2/',
+        // INSIGHTLY_PROXY_URL = 'http://localhost:5000/v2.2/',
+        INSIGHTLY_PROXY_URL = 'http://ce-insightly-proxy.herokuapp.com/v2.1/',
         FIREBASE_URL = 'https://citizensempowered.firebaseio.com/',
         ALL_FORM_INPUTS_SELECTOR = 'input:not([type=submit], [type=hidden]), textarea, select';
 
@@ -65,8 +68,25 @@ $(function() {
             return text;
         }
 
+        function getQueryParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
         function redirectTo(url) {
             window.location.href = url;
+        }
+
+        function phoneOrEmailValue(elementName) {
+            return /\[[0-9]\]\.Value/.test(elementName);
+        }
+        function addressPartial(elementName) {
+            return /addresse?s?\[[0-9]\]/.test(elementName);
+        }
+        function shouldBeUnderscored(elementName) {
+             return /[A-Z][a-z]+[A-Z]/.test(elementName);
         }
 
         // ---------------------------------- Main Behavior Functions ---------------------------
@@ -178,6 +198,32 @@ $(function() {
             }
         }
 
+        function setPassword($form) {
+            var email       = signedInUserEmail;
+            var oldPassword = getQueryParameterByName('token');
+            var newPassword = $form.find('input#password-new1').val();
+            var newPasswordVerify = $form.find('input#password-new2').val();
+
+            if (newPassword !== newPasswordVerify) {
+                alert('The passwords did not match');
+            }
+            else {
+                userRef.changePassword({
+                    email       : email,
+                    oldPassword : oldPassword,
+                    newPassword : newPassword
+                }, function(error) {
+                    if (error) {
+                        console.log('Error changing password:', error);
+                        alert('Password set was unsuccessful - link likely expired or was already used.');
+                    }
+                    else {
+                        alert('Password set successfully');
+                    }
+                });
+            }
+        }
+
         function resetPassword($form) {
             var email = $form.find('input#email').val() || signedInUserEmail;
             console.log('Resetting pass for:', email);
@@ -187,9 +233,10 @@ $(function() {
             }, function(error) {
                 if (error) {
                     console.log('Error sending password reset email:', error);
+                    alert('Could not send reset email, no user with that email address');
                 }
                 else {
-                    console.log('Password reset email sent successfully');
+                    alert('Password reset email sent successfully');
                 }
             });
         }
@@ -257,12 +304,57 @@ $(function() {
 
             var dataObj = {};
 
-            // console.log('Data destination:', $form.attr('data-action'));
+            dataObj.contactInfos = [];
+            dataObj.addresses = [];
 
             $form.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
                 var $elem = $(this);
-                // if ($elem.attr('name') === 'Salutation')
-                    dataObj[$elem.attr('name')] = $elem.val();
+
+                var elemName = $elem.attr('name');
+                var elemVal = $elem.val();
+
+                if (phoneOrEmailValue(elemName)) {
+                    if (elemVal) {
+                        var consolidatedData = {};
+
+                        var selector = '[name="' + elemName.replace(/Value$/, '') + 'Label"]';
+
+                        consolidatedData.detail = elemVal;
+                        consolidatedData.label = $form.find(selector).val();
+                        consolidatedData.type = elemName.match(/[^[]+/)[0].replace(/s$/, '');
+                        consolidatedData.subtype = null;
+
+                        dataObj.contactInfos.push(consolidatedData);
+                    }
+                }
+
+                else if (addressPartial(elemName)) {
+                    var addressIndex = parseInt(elemName.match(/\[([0-9])\]/)[1]); // Example output: [ '[0]', '0', index: 9, input: 'addresses[0]' ]
+
+                    if (addressIndex >= dataObj.addresses.length) {
+                        for (var i = 0; i <= addressIndex; ++i) {
+                            dataObj.addresses.push({});
+                        }
+                    }
+
+                    if (/Street/i.test(elemName)) {
+                        var addressPartialSelector = '[name="' + elemName.replace(/Street$/, 'AddressType') + '"]';
+                        dataObj.addresses[addressIndex].address_type = $form.find(addressPartialSelector).val();
+                    }
+
+                    addressPartialType = elemName.match(/\.(.+)/)[1]; // Example output: [ '.City', 'City', index: 12, input: 'addresses[0].City' ]
+
+                    dataObj.addresses[addressIndex][addressPartialType] = elemVal;
+                }
+
+                else if (shouldBeUnderscored(elemName)) {
+                    elemName = elemName.replace(/(?!^)([A-Z]+)/, '_$1');
+                    dataObj[elemName] = elemVal;
+                }
+
+                else {
+                    dataObj[elemName] = elemVal;
+                }
             });
 
             console.log('Insightly data:', dataObj);
@@ -321,6 +413,9 @@ $(function() {
                     break;
                 case 'change-password':
                     handler = changePassword;
+                    break;
+                case 'set-password':
+                    handler = setPassword;
                     break;
                 case 'delete-user':
                     handler = deleteUser;
