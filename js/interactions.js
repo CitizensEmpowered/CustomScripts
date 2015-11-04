@@ -132,8 +132,10 @@ $(function() {
                     alert('An account with that email already exists');
                 }
                 else {
+                    localStorage.setItem('sign-up-email', email);
+
                     console.log('Successfully created user account with uid:', userData.uid);
-                    alert('You\'re signed up, check your email within the next few minutes for your temporary password!');
+                    alert('You\'re signed up, check your email within the next few minutes to sign in and set your password!');
 
                     // Immediately reset their password
                     userRef.resetPassword({
@@ -199,10 +201,12 @@ $(function() {
         }
 
         function setPassword($form) {
-            var email       = signedInUserEmail;
+            var email       = localStorage.getItem('sign-up-email');
             var oldPassword = getQueryParameterByName('token');
             var newPassword = $form.find('input#password-new1').val();
             var newPasswordVerify = $form.find('input#password-new2').val();
+
+            console.log()
 
             if (newPassword !== newPasswordVerify) {
                 alert('The passwords did not match');
@@ -214,7 +218,7 @@ $(function() {
                     newPassword : newPassword
                 }, function(error) {
                     if (error) {
-                        console.log('Error changing password:', error);
+                        console.log('Error setting password:', error);
                         alert('Password set was unsuccessful - link likely expired or was already used.');
                     }
                     else {
