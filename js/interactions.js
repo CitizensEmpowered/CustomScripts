@@ -135,7 +135,7 @@ $(function() {
                 password:   password
             }, function(error, userData) {
                 if (error) {
-                    // console.log('Error creating user:', error);
+                    console.log('Error creating user:', error);
                     alert('An account with that email already exists');
                 }
                 else {
@@ -205,6 +205,7 @@ $(function() {
                 }, function(error) {
                     if (error) {
                         console.log('Error changing password:', error);
+                        alert('Could not change password, email/password combination incorrect.');
                     }
                     else {
                         alert('Password changed successfully');
@@ -250,7 +251,6 @@ $(function() {
 
         function resetPasswordFromForm($form) {
             var email = $form.find('input#email').val() || signedInUserInfo.email;
-            console.log('Resetting pass for:', email);
 
             firebaseRef.resetPassword({
                 email: email
@@ -288,11 +288,12 @@ $(function() {
                     password : password
                 }, function(error) {
                     if (error === null) {
-                        alert('Your account has been successfully deleted');
                         console.log('User removed successfully');
+                        alert('Your account has been successfully deleted');
                     }
                     else {
                         console.log('Error removing user:', error);
+                        alert('Your account could not be deleted. Likely problem with your password, or your account has been corrupted.');
                     }
                 });
             }
@@ -374,7 +375,6 @@ $(function() {
             });
 
             console.log('Insightly data:', dataObj);
-            console.log('Insightly url:', INSIGHTLY_PROXY_URL + 'Contacts');
 
             var method;
             if (signedInUserInfo.insightlyUid) {
@@ -400,10 +400,10 @@ $(function() {
 
                         userRef.child(signedInUserInfo.firebaseUid).child('insightlyUid').set(newUid, function(error) {
                             if (error) {
-                                console.log('Synchronization failed');
+                                console.log('Failed at adding insightlyUid');
                             }
                             else {
-                                console.log('Synchronization succeeded');
+                                console.log('Adding insightlyUid success');
                             }
                         });
                     }
@@ -414,7 +414,7 @@ $(function() {
         function handleNewTopic(snapshot) {
             var data = snapshot.val();
 
-            console.log('Got topic:', data);
+            console.log('Got topics:', data);
 
             for (var key in data) {
                 var topic = data[key];
