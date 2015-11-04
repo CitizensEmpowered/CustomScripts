@@ -6,17 +6,20 @@ $(function() {
         LOG_IN_PAGE = 'http://www.citizensempowered.org/log-in-sign-up', // Redirected to this upon logging out
         // LOG_IN_PAGE = 'http://localhost:8080/mock-up-testing/', // Redirected to this upon logging out
         HOME_PAGE = 'http://www.citizensempowered.org/', // Not really used
-        // INSIGHTLY_PROXY_URL = 'http://localhost:5000/v2.2/',
-        INSIGHTLY_PROXY_URL = 'http://ce-insightly-proxy.herokuapp.com/v2.1/',
+        // INSIGHTLY_PROXY_URL = 'http://localhost:5000/v2.1/',
+        INSIGHTLY_PROXY_URL = 'http://ce-insightly-proxy.herokuapp.com/v2.1/', // Proxy server to hide Insightly credentials
         FIREBASE_URL = 'https://citizensempowered.firebaseio.com/',
         ALL_FORM_INPUTS_SELECTOR = 'input:not([type=submit], [type=hidden]), textarea, select';
 
     var SQUARESPACE_CONFIG = (window.top.location.href.indexOf('config') !== -1),
         PAGE_LOCKED = (typeof LOCKED_PAGE !== 'undefined');
 
-    var signedInUserFirebaseUid;
-    var signedInUserEmail;
-    var signedInUserInsightlyUid;
+    var signedInUserInfo = {
+        firebaseUid: null,
+        email: null,
+        insightlyUid: null
+    };
+
     var firebaseRef;
 
     function unlockPage() {
@@ -42,6 +45,8 @@ $(function() {
             }
 
             console.log('Got updated user data:', data);
+
+            signedInUserInfo.insightlyUid = data.insightlyUid;
 
             var $userInfoForm = $('form#update-user');
             if ($userInfoForm.length) {
@@ -93,17 +98,19 @@ $(function() {
 
         firebaseRef.onAuth(function authDataCallback(authData) {
             if (authData) {
-                signedInUserFirebaseUid = authData.uid;
-                signedInUserEmail = authData.password.email;
-                console.log('User', signedInUserEmail, '(', signedInUserFirebaseUid, ') is logged in with', authData.provider);
+                signedInUserInfo.firebaseUid = authData.uid;
+                signedInUserInfo.email = authData.password.email;
+
+                console.log('User', signedInUserInfo.email, '(', signedInUserInfo.firebaseUid, ') is logged in with', authData.provider);
                 unlockPage();
 
                 // Act on the user's data
                 userRef.child(authData.uid).on('value', handleUserData, handleUserDataError);
             } else {
-                var wasSignedIn = !!signedInUserFirebaseUid;
+                var wasSignedIn = !!signedInUserInfo.firebaseUid;
 
-                signedInUserFirebaseUid = null;
+                signedInUserInfo.firebaseUid = null;
+                signedInUserInfo.insightlyUid = null;
 
                 if (wasSignedIn) {
                     console.log('User was logged in and logged out, redirecting');
@@ -123,7 +130,7 @@ $(function() {
             var email = $form.find('#email').val();
             var password = createRandomPassword(20);
 
-            userRef.createUser({
+            firebaseRef.createUser({
                 email:      email,
                 password:   password
             }, function(error, userData) {
@@ -134,11 +141,11 @@ $(function() {
                 else {
                     localStorage.setItem('sign-up-email', email);
 
-                    console.log('Successfully created user account with uid:', userData.uid);
+                    console.log('Successfully created user account with email:', email);
                     alert('You\'re signed up, check your email within the next few minutes to sign in and set your password!');
 
                     // Immediately reset their password
-                    userRef.resetPassword({
+                    firebaseRef.resetPassword({
                         email: email
                     }, function(error) {
                         if (error) {
@@ -175,11 +182,11 @@ $(function() {
         }
 
         function logOutFromForm() {
-            firebaseRef.unauth(); // Will ping the onAuth method of 'userRef'
+            firebaseRef.unauth(); // Will ping the onAuth method of 'firebaseRef'
         }
 
         function changePasswordFromForm($form) {
-            var email       = signedInUserEmail;
+            var email       = signedInUserInfo.email;
             var oldPassword = $form.find('input#password-old').val();
             var newPassword = $form.find('input#password-new1').val();
             var newPasswordVerify = $form.find('input#password-new2').val();
@@ -188,7 +195,7 @@ $(function() {
                 alert('The passwords did not match');
             }
             else {
-                userRef.changePassword({
+                firebaseRef.changePassword({
                     email       : email,
                     oldPassword : oldPassword,
                     newPassword : newPassword
@@ -215,7 +222,7 @@ $(function() {
                 alert('The passwords did not match');
             }
             else {
-                userRef.changePassword({
+                firebaseRef.changePassword({
                     email       : email,
                     oldPassword : oldPassword,
                     newPassword : newPassword
@@ -235,10 +242,10 @@ $(function() {
         }
 
         function resetPasswordFromForm($form) {
-            var email = $form.find('input#email').val() || signedInUserEmail;
+            var email = $form.find('input#email').val() || signedInUserInfo.email;
             console.log('Resetting pass for:', email);
 
-            userRef.resetPassword({
+            firebaseRef.resetPassword({
                 email: email
             }, function(error) {
                 if (error) {
@@ -252,23 +259,24 @@ $(function() {
         }
 
         function deleteUserFromForm($form) {
-            var email = signedInUserEmail;
+            var email = signedInUserInfo.email;
             var password = $form.find('input#password').val();
 
-            if (!signedInUserFirebaseUid) {
+            if (!signedInUserInfo.firebaseUid) {
                 alert('Must be signed in to delete your account');
             }
 
             if (confirm('Did you mean to delete your entire account? WARNING: Cannot be undone.')) {
-                userRef.child(signedInUserFirebaseUid).remove(function(error) {
+                userRef.child(signedInUserInfo.firebaseUid).remove(function(error) {
                     if (error) {
                         console.log('Removing user data failed');
-                    } else {
+                    }
+                    else {
                         console.log('Removing user data succeeded');
                     }
                 });
 
-                userRef.removeUser({
+                firebaseRef.removeUser({
                     email    : email,
                     password : password
                 }, function(error) {
@@ -285,7 +293,6 @@ $(function() {
 
         function submitUserData(collection, appending, isInsightly, $form) {
             var dataObj = {};
-            dataObj.uid = signedInUserFirebaseUid;
 
             var formId = $form.attr('id');
 
@@ -294,7 +301,7 @@ $(function() {
                 dataObj[$elem.attr('id')] = $elem.val();
             });
 
-            var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUserFirebaseUid);
+            var specificRef = (collection === 'topics') ? topicRef : userRef.child(signedInUserInfo.firebaseUid);
 
             specificRef[appending ? 'push' : 'update'](dataObj, function() {
                 if (isInsightly) {
@@ -304,14 +311,6 @@ $(function() {
         }
 
         function sendDataToInsightly($form) {
-            // $form.attr('name', $form.attr('data-name'));
-            // $form.attr('action', $form.attr('data-action'));
-            // $form.attr('method', $form.attr('data-method'));
-
-            // // Note: Can't do a AJAX submission of data, Insightly doesn't allow cross-site requests (for security, probably)
-            // // Maybe should use API
-            // $form.unbind('submit').submit();
-
             var dataObj = {};
 
             dataObj.contactInfos = [];
@@ -370,9 +369,38 @@ $(function() {
             console.log('Insightly data:', dataObj);
             console.log('Insightly url:', INSIGHTLY_PROXY_URL + 'Contacts');
 
-            $.post(INSIGHTLY_PROXY_URL + 'Contacts', dataObj, function(data, textStatus) {
-                console.log('Got', data, 'from insightly');
-                console.log('Got', textStatus, 'from insightly');
+            var method;
+            if (signedInUserInfo.insightlyUid) {
+                method = 'PUT'; // Update, not add
+                dataObj.contact_id = signedInUserInfo.insightlyUid;
+            }
+            else {
+                method = 'POST'; // Add, not update
+            }
+
+            $.ajax({
+                method: method,
+                url: INSIGHTLY_PROXY_URL + 'Contacts',
+                data: dataObj,
+                success: function(data, textStatus) {
+                    console.log('Got', data, 'from insightly');
+                    console.log('Got', textStatus, 'from insightly');
+
+                    if (!signedInUserInfo.insightlyUid) {
+                        var newUid = data.CONTACT_ID;
+
+                        signedInUserInfo.insightlyUid = newUid;
+
+                        userRef.child(signedInUserInfo.firebaseUid).child('insightlyUid').set(newUid, function(error) {
+                            if (error) {
+                                console.log('Synchronization failed');
+                            }
+                            else {
+                                console.log('Synchronization succeeded');
+                            }
+                        });
+                    }
+                }
             });
         }
 

@@ -19,21 +19,21 @@ var server = http.createServer(function(req, res) {
     // For CORS support - allows AJAX calls
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
 
-    console.log('Proxying:', req.headers);
+    if (req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+        res.end();
+    }
+    else {
+        // console.log('Proxying:', req.headers);
 
-    // req.headers = {};
-      
-    req.on('data', function(chunk) {
-      console.log("Received body data:");
-      console.log(chunk.toString());
-    });
-    
-    req.headers['Authorization'] = 'Basic ' + ENCODED_API_KEY;
-    req.headers['host'] = 'api.insight.ly';
+        // req.headers = {};
+        req.headers['Authorization'] = 'Basic ' + ENCODED_API_KEY;
+        req.headers['host'] = 'api.insight.ly';
 
-    console.log('Post processing:', req.headers);
+        // console.log('Post processing:', req.headers);
 
-    proxy.web(req, res, { target: 'https://api.insight.ly/' });
+        proxy.web(req, res, { target: 'https://api.insight.ly/' });
+    }
 });
  
 console.log("listening on port", process.env.PORT || 5000)
