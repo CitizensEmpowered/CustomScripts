@@ -94,10 +94,29 @@ $(function() {
              return /[A-Z][a-z]+[A-Z]/.test(elementName);
         }
 
+        function replaceHeaderSignInLink() {
+            var $newElement = $('<span>');
+
+            var $signOutLink = $('<a>', { id: 'log-out', href: '#', html: 'Log Out' });
+            var $accLink = $('<a>', { href: YOUR_ACCOUNT_PAGE, html: 'Your Account' });
+
+            $newElement.append($accLink);
+            $newElement.append(' / ');
+            $newElement.append($signOutLink);
+
+            var $oldLink = $('header a[href="/log-in-sign-up"]');
+            $newElement.insertAfter($oldLink);
+            $oldLink.hide();
+
+            // TODO: Possibly need to manually add event listener to the newly added 'log out' link?
+        }
+
         // ---------------------------------- Main Behavior Functions ---------------------------
 
         firebaseRef.onAuth(function authDataCallback(authData) {
-            if (authData) {
+            if (authData) { // User is logged in
+                replaceHeaderSignInLink();
+
                 signedInUserInfo.firebaseUid = authData.uid;
                 signedInUserInfo.email = authData.password.email;
 
@@ -107,7 +126,7 @@ $(function() {
                 // Act on the user's data
                 userRef.child(authData.uid).on('value', handleUserData, handleUserDataError);
             } else {
-                var wasSignedIn = !!signedInUserInfo.firebaseUid;
+                var wasSignedIn = !!signedInUserInfo.firebaseUid; // Detecting case where use was logged out with page active
 
                 signedInUserInfo.firebaseUid = null;
                 signedInUserInfo.insightlyUid = null;
@@ -181,11 +200,15 @@ $(function() {
             logIn(email, password);
         }
 
-        function logOut() {
-            firebaseRef.unauth(); // Will ping the onAuth method of 'firebaseRef'
-        }
-        function logOutFromForm($form) {
-            logOut();
+        function logOut(evt) {
+            evt.preventDefault();
+            if (signedInUserInfo.firebaseUid) { // Testing to see if user is logged in
+                firebaseRef.unauth(); // Will ping the onAuth method of 'firebaseRef'
+                alert('You have been successfully logged out');
+            }
+            else {
+                alert('You were not already logged in');
+            }
         }
 
         function changePasswordFromForm($form) {
@@ -450,9 +473,6 @@ $(function() {
                 case 'log-in':
                     handler = logInFromForm;
                     break;
-                case 'log-out':
-                    handler = logOutFromForm;
-                    break;
                 case 'reset-password':
                     handler = resetPasswordFromForm;
                     break;
@@ -476,7 +496,7 @@ $(function() {
             }
         });
 
-        $('#log-out').click(logOutFromForm);
+        $('#log-out').click(logOut);
     }
 
     if (SQUARESPACE_CONFIG) {
