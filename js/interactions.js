@@ -399,6 +399,8 @@ $(function() {
 
             console.log('Insightly data:', dataObj);
 
+            // TODO: Add tag for CE-Member
+
             var method;
             if (signedInUserInfo.insightlyUid) {
                 method = 'PUT'; // Update, not add
