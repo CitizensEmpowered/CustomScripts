@@ -342,81 +342,122 @@ $(function() {
         }
 
         function sendDataToInsightly($form) {
-            var dataObj = {};
+            var insightlyData = {
+                "contact_id": null, // Gotten from form
+                "salutation": "",   // Gotten from form
+                "first_name": "",   // Gotten from form
+                "last_name": "",    // Gotten from form
+                "background": "",   // Gotten from form
+                // "customfields": [
+                //     {
+                //         "custom_field_id": "",
+                //         "field_value": {}
+                //     },
+                //     {
+                //         "custom_field_id": "",
+                //         "field_value": {}
+                //     },
+                //     {
+                //         "custom_field_id": "",
+                //         "field_value": {}
+                //     }
+                // ],
+                "addresses": [ // Update this section to addresses requested in form
+                    {
+                        "address_type": "home",
+                        "street":       "", // Gotten from form
+                        "city":         "", // Gotten from form
+                        "state":        "", // Gotten from form
+                        "postcode":     "", // Gotten from form
+                        "country":      ""  // Gotten from form
+                    }
+                ],
+                "contactinfos": [
+                    {
+                        "type": "email",
+                        "subtype": null,
+                        "label": "personal",
+                        "detail": "" // Gotten from form
+                    },
+                    {
+                        "type": "phone",
+                        "subtype": null,
+                        "label": "mobile",
+                        "detail": "" // Gotten from form
+                    },
+                    {
+                        "type": "phone",
+                        "subtype": null,
+                        "label": "home",
+                        "detail": "" // Gotten from form
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_name": "CE MEMBER"
+                    }
+                ],
+            };
 
-            dataObj.contactInfos = [];
-            dataObj.addresses = [];
+            var mapper = {
+                'salutation':           ['salutation'],
+                'first-name':           ['first_name'],
+                'last-name':            ['last_name'],
+                'background-info':      ['background'],
+                'email-personal':       ['contactinfos', 0, 'detail'],
+                'phone-mobile':         ['contactinfos', 1, 'detail'],
+                'phone-home':           ['contactinfos', 2, 'detail'],
+                'address-street':       ['addresses', 0, 'street'],
+                'address-city':         ['addresses', 0, 'city'],
+                'address-state':        ['addresses', 0, 'state'],
+                'address-postal-code':  ['addresses', 0, 'postcode'],
+                'address-country':      ['addresses', 0, 'country']
+            };
 
             $form.find(ALL_FORM_INPUTS_SELECTOR).each(function() {
                 var $elem = $(this);
-
-                var elemName = $elem.attr('name');
+                var elemId = $elem.attr('id');
                 var elemVal = $elem.val();
 
-                if (phoneOrEmailValue(elemName)) {
-                    if (elemVal) {
-                        var consolidatedData = {};
+                var elemMapPath = mapper[elemId];
 
-                        var selector = '[name="' + elemName.replace(/Value$/, '') + 'Label"]';
+                var elemDestination = insightlyData;
 
-                        consolidatedData.detail = elemVal;
-                        consolidatedData.label = $form.find(selector).val();
-                        consolidatedData.type = elemName.match(/[^[]+/)[0].replace(/s$/, '');
-                        consolidatedData.subtype = null;
-
-                        dataObj.contactInfos.push(consolidatedData);
-                    }
+                var i = 0;
+                for (; i < elemMapPath.length-1; ++i) { // Go through path until 1 step away
+                    var step = elemMapPath[i];
+                    elemDestination = elemDestination[step];
                 }
 
-                else if (addressPartial(elemName)) {
-                    var addressIndex = parseInt(elemName.match(/\[([0-9])\]/)[1]); // Example output: [ '[0]', '0', index: 9, input: 'addresses[0]' ]
-
-                    if (addressIndex >= dataObj.addresses.length) {
-                        for (var i = 0; i <= addressIndex; ++i) {
-                            dataObj.addresses.push({});
-                        }
-                    }
-
-                    if (/Street/i.test(elemName)) {
-                        var addressPartialSelector = '[name="' + elemName.replace(/Street$/, 'AddressType') + '"]';
-                        dataObj.addresses[addressIndex].address_type = $form.find(addressPartialSelector).val();
-                    }
-
-                    addressPartialType = elemName.match(/\.(.+)/)[1]; // Example output: [ '.City', 'City', index: 12, input: 'addresses[0].City' ]
-
-                    dataObj.addresses[addressIndex][addressPartialType] = elemVal;
-                }
-
-                else if (shouldBeUnderscored(elemName)) {
-                    elemName = elemName.replace(/(?!^)([A-Z]+)/, '_$1');
-                    dataObj[elemName] = elemVal;
-                }
-
-                else {
-                    dataObj[elemName] = elemVal;
-                }
+                // Assign to final destination
+                elemDestination[elemMapPath[i]] = elemVal;
             });
 
-            console.log('Insightly data:', dataObj);
-
-            // TODO: Add tag for CE-Member
+            insightlyData.contactinfos = insightlyData.contactinfos.filter(function(contactinfo) {
+                return contactinfo.detail;
+            });
 
             var method;
             if (signedInUserInfo.insightlyUid) {
                 method = 'PUT'; // Update, not add
-                dataObj.contact_id = signedInUserInfo.insightlyUid;
+                insightlyData.contact_id = signedInUserInfo.insightlyUid;
             }
             else {
                 method = 'POST'; // Add, not update
             }
 
+            console.log('Insightly data:', insightlyData);
+
             $.ajax({
                 method: method,
                 url: INSIGHTLY_PROXY_URL + 'Contacts',
-                data: dataObj,
+                data: insightlyData,
                 success: function(data, textStatus) {
+                    console.log('Good');
                     console.log('Got', data, 'from insightly');
                     console.log('Got', textStatus, 'from insightly');
+
+                    alert('Updated your information successfully');
 
                     if (!signedInUserInfo.insightlyUid) {
                         var newUid = data.CONTACT_ID;
@@ -432,6 +473,12 @@ $(function() {
                             }
                         });
                     }
+                },
+                error: function(xhr, status, err) {
+                    console.log('Issue with connecting to insightly');
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(err);
                 }
             });
         }
