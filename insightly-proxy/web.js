@@ -25,13 +25,8 @@ var server = http.createServer(function(req, res) {
         res.end();
     }
     else {
-        // console.log('Proxying:', req.headers);
-
-        // req.headers = {};
         req.headers['Authorization'] = 'Basic ' + ENCODED_API_KEY;
         req.headers['host'] = 'api.insight.ly';
-
-        // console.log('Post processing:', req.headers);
 
         proxy.web(req, res, { target: 'https://api.insight.ly/' });
     }
