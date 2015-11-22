@@ -104,7 +104,7 @@ $(function() {
             $newElement.append(' / ');
             $newElement.append($signOutLink);
 
-            var $oldLink = $('header a[href="/log-in-sign-up"]');
+            var $oldLink = $('header a[href*="log-in"]');
             $newElement.insertAfter($oldLink);
             $oldLink.hide();
 
