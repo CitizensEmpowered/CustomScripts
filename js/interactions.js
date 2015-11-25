@@ -343,7 +343,7 @@ $(function() {
 
         function sendDataToInsightly($form) {
             var insightlyData = {
-                "contact_id": null, // Gotten from form
+                "contact_id": null, // Gotten from firebase
                 "salutation": "",   // Gotten from form
                 "first_name": "",   // Gotten from form
                 "last_name": "",    // Gotten from form
@@ -444,6 +444,7 @@ $(function() {
             }
             else {
                 method = 'POST'; // Add, not update
+                delete insightlyData.contact_id;
             }
 
             console.log('Insightly data:', insightlyData);
