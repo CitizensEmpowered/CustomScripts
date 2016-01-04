@@ -40,11 +40,11 @@ $(function() {
             var data = snapshot.val();
 
             if (!data) {
-                console.log('User has no data');
+                console.log('[Custom Script] User has no data');
                 return;
             }
 
-            console.log('Got updated user data:', data);
+            console.log('[Custom Script] Got updated user data:', data);
 
             signedInUserInfo.insightlyUid = data.insightlyUid;
 
@@ -58,7 +58,7 @@ $(function() {
             }
         }
         function handleUserDataError(errorObject) {
-            console.log('The read failed: ' + errorObject.code);
+            console.log('[Custom Script] The read failed: ' + errorObject.code);
         }
 
         function createRandomPassword(length) {
@@ -104,7 +104,7 @@ $(function() {
             $newElement.append(' / ');
             $newElement.append($signOutLink);
 
-            var $oldLink = $('header a[href*="log-in"]');
+            var $oldLink = $('a[href*="log-in"]');
             $newElement.insertAfter($oldLink);
             $oldLink.hide();
 
@@ -120,7 +120,7 @@ $(function() {
                 signedInUserInfo.firebaseUid = authData.uid;
                 signedInUserInfo.email = authData.password.email;
 
-                console.log('User', signedInUserInfo.email, '(', signedInUserInfo.firebaseUid, ') is logged in with', authData.provider);
+                console.log('[Custom Script] User', signedInUserInfo.email, '(', signedInUserInfo.firebaseUid, ') is logged in with', authData.provider);
                 unlockPage();
 
                 // Act on the user's data
@@ -132,11 +132,11 @@ $(function() {
                 signedInUserInfo.insightlyUid = null;
 
                 if (wasSignedIn) {
-                    console.log('User was logged in and logged out, redirecting');
+                    console.log('[Custom Script] User was logged in and logged out, redirecting');
                     redirectTo(LOG_IN_PAGE);
                 }
                 else {
-                    console.log('User is logged out');
+                    console.log('[Custom Script] User is logged out');
                     if (PAGE_LOCKED) {
                         alert('You\'re not signed in, redirecting you to the home page.');
                         window.location.replace(LOG_IN_PAGE);
@@ -154,13 +154,13 @@ $(function() {
                 password:   password
             }, function(error, userData) {
                 if (error) {
-                    console.log('Error creating user:', error);
+                    console.log('[Custom Script] Error creating user:', error);
                     alert('An account with that email already exists');
                 }
                 else {
                     localStorage.setItem('sign-up-email', email);
 
-                    console.log('Successfully created user account with email:', email);
+                    console.log('[Custom Script] Successfully created user account with email:', email);
                     alert('You\'re signed up, check your email within the next few minutes to sign in and set your password!');
 
                     // Immediately reset their password
@@ -168,10 +168,10 @@ $(function() {
                         email: email
                     }, function(error) {
                         if (error) {
-                            console.log('Error sending password reset email:', error);
+                            console.log('[Custom Script] Error sending password reset email:', error);
                         }
                         else {
-                            console.log('Password reset email sent successfully');
+                            console.log('[Custom Script] Password reset email sent successfully');
                         }
                     });
                 }
@@ -184,7 +184,7 @@ $(function() {
                 password:   password
             }, function(error, authData) {
                 if (error) {
-                    console.log('Login Failed!', error);
+                    console.log('[Custom Script] Login Failed!', error);
                     alert('Failed to log you in, likely problem with username or password');
                 }
                 else {
@@ -227,7 +227,7 @@ $(function() {
                     newPassword : newPassword
                 }, function(error) {
                     if (error) {
-                        console.log('Error changing password:', error);
+                        console.log('[Custom Script] Error changing password:', error);
                         alert('Could not change password, email/password combination incorrect.');
                     }
                     else {
@@ -259,7 +259,7 @@ $(function() {
                     newPassword : newPassword
                 }, function(error) {
                     if (error) {
-                        console.log('Error setting password:', error);
+                        console.log('[Custom Script] Error setting password:', error);
                         alert('Password set was unsuccessful - link likely expired or was already used.');
                     }
                     else {
@@ -279,7 +279,7 @@ $(function() {
                 email: email
             }, function(error) {
                 if (error) {
-                    console.log('Error sending password reset email:', error);
+                    console.log('[Custom Script] Error sending password reset email:', error);
                     alert('Could not send reset email, no user with that email address');
                 }
                 else {
@@ -299,10 +299,10 @@ $(function() {
             if (confirm('Did you mean to delete your entire account? WARNING: Cannot be undone.')) {
                 userRef.child(signedInUserInfo.firebaseUid).remove(function(error) {
                     if (error) {
-                        console.log('Removing user data failed');
+                        console.log('[Custom Script] Removing user data failed');
                     }
                     else {
-                        console.log('Removing user data succeeded');
+                        console.log('[Custom Script] Removing user data succeeded');
                     }
                 });
 
@@ -311,11 +311,11 @@ $(function() {
                     password : password
                 }, function(error) {
                     if (error === null) {
-                        console.log('User removed successfully');
+                        console.log('[Custom Script] User removed successfully');
                         alert('Your account has been successfully deleted');
                     }
                     else {
-                        console.log('Error removing user:', error);
+                        console.log('[Custom Script] Error removing user:', error);
                         alert('Your account could not be deleted. Likely problem with your password, or your account has been corrupted.');
                     }
                 });
@@ -447,16 +447,16 @@ $(function() {
                 delete insightlyData.contact_id;
             }
 
-            console.log('Insightly data:', insightlyData);
+            console.log('[Custom Script] Insightly data:', insightlyData);
 
             $.ajax({
                 method: method,
                 url: INSIGHTLY_PROXY_URL + 'Contacts',
                 data: insightlyData,
                 success: function(data, textStatus) {
-                    console.log('Good');
-                    console.log('Got', data, 'from insightly');
-                    console.log('Got', textStatus, 'from insightly');
+                    console.log('[Custom Script] Good');
+                    console.log('[Custom Script] Got', data, 'from insightly');
+                    console.log('[Custom Script] Got', textStatus, 'from insightly');
 
                     alert('Updated your information successfully');
 
@@ -467,16 +467,16 @@ $(function() {
 
                         userRef.child(signedInUserInfo.firebaseUid).child('insightlyUid').set(newUid, function(error) {
                             if (error) {
-                                console.log('Failed at adding insightlyUid');
+                                console.log('[Custom Script] Failed at adding insightlyUid');
                             }
                             else {
-                                console.log('Adding insightlyUid success');
+                                console.log('[Custom Script] Adding insightlyUid success');
                             }
                         });
                     }
                 },
                 error: function(xhr, status, err) {
-                    console.log('Issue with connecting to insightly');
+                    console.log('[Custom Script] Issue with connecting to insightly');
                     console.log(xhr);
                     console.log(status);
                     console.log(err);
@@ -487,7 +487,7 @@ $(function() {
         function handleNewTopic(snapshot) {
             var data = snapshot.val();
 
-            console.log('Got topics:', data);
+            console.log('[Custom Script] Got topics:', data);
 
             for (var key in data) {
                 var topic = data[key];
@@ -496,7 +496,7 @@ $(function() {
             }
         }
         function handleNewTopicError(errorObject) {
-            console.log('The read failed: ' + errorObject.code);
+            console.log('[Custom Script] The read failed: ' + errorObject.code);
         }
 
         if ($topicsContainer.length) {
