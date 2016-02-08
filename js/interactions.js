@@ -108,7 +108,7 @@ $(function() {
             $newElement.insertAfter($oldLink);
             $oldLink.hide();
 
-            // TODO: Possibly need to manually add event listener to the newly added 'log out' link?
+            $signOutLink.click(logOut);
         }
 
         // ---------------------------------- Main Behavior Functions ---------------------------
