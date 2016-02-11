@@ -419,18 +419,20 @@ $(function() {
                 var elemId = $elem.attr('id');
                 var elemVal = $elem.val();
 
-                var elemMapPath = mapper[elemId];
+                var elemInsightlyStoragePath = mapper[elemId];
+
+                if (!elemInsightlyStoragePath) return;
 
                 var elemDestination = insightlyData;
 
                 var i = 0;
-                for (; i < elemMapPath.length-1; ++i) { // Go through path until 1 step away
-                    var step = elemMapPath[i];
+                for (; i < elemInsightlyStoragePath.length-1; ++i) { // Go through path until 1 step away
+                    var step = elemInsightlyStoragePath[i];
                     elemDestination = elemDestination[step];
                 }
 
                 // Assign to final destination
-                elemDestination[elemMapPath[i]] = elemVal;
+                elemDestination[elemInsightlyStoragePath[i]] = elemVal;
             });
 
             insightlyData.contactinfos = insightlyData.contactinfos.filter(function(contactinfo) {
