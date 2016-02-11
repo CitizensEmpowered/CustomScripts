@@ -421,7 +421,10 @@ $(function() {
 
                 var elemInsightlyStoragePath = mapper[elemId];
 
-                if (!elemInsightlyStoragePath) return;
+                if (!elemInsightlyStoragePath) {
+                    console.log('Didn\'t recognize:', elemId);
+                    return;
+                }
 
                 var elemDestination = insightlyData;
 
