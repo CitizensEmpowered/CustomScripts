@@ -92,19 +92,17 @@ $(function() {
         function handleUserData(snapshot) {
             var data = snapshot.val();
 
-            if (!data) {
-                console.log('[Custom Script] User has no data');
-                initializeInsightlyAccount();
-                return;
-            }
-
-            console.log('[Custom Script] Got updated user data:', data);
-
-            if (!data.insightlyUid) {
+            if (!data || (data && !data.insightlyUid)) {
                 console.log('[Custom Script] Logged in user didn\'t have a linked Insightly account');
                 initializeInsightlyAccount();
             }
 
+            if (!data) {
+                console.log('[Custom Script] User has no data');
+                return;
+            }
+
+            console.log('[Custom Script] Got updated user data:', data);
             signedInUserInfo.insightlyUid = data.insightlyUid;
 
             var $userInfoForm = $('form#update-user');
