@@ -55,8 +55,10 @@ $(function() {
 
             insightlyData.contactinfos[0].detail = signedInUserInfo.email;
 
+            console.log('Initializing', signedInUserInfo.email, 'with', insightlyData);
+
             $.ajax({
-                method: 'PUT',
+                method: 'POST',
                 url: INSIGHTLY_PROXY_URL + 'Contacts',
                 data: insightlyData,
                 success: function(data, textStatus) {
