@@ -92,7 +92,8 @@ $(function() {
         function handleUserData(snapshot) {
             var data = snapshot.val();
 
-            if (!data || (data && !data.insightlyUid)) {
+            if (( !data || (data && !data.insightlyUid) ) &&
+                window.location.href === YOUR_ACCOUNT_PAGE) { // Checking for Your Account prevents double creation
                 console.log('[Custom Script] Logged in user didn\'t have a linked Insightly account');
                 initializeInsightlyAccount();
             }
