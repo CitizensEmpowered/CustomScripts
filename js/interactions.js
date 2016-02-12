@@ -265,7 +265,7 @@ $(function() {
             evt.preventDefault();
             if (signedInUserInfo.firebaseUid) { // Testing to see if user is logged in
                 firebaseRef.unauth(); // Will ping the onAuth method of 'firebaseRef'
-                alert('You have been successfully logged out');
+                // alert('You have been successfully logged out');
             }
             else {
                 alert('You were not already logged in');
