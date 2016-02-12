@@ -36,15 +36,72 @@ $(function() {
 
         // ---------------------------------- Helper Functions ----------------------------------
 
+        function initializeInsightlyAccount() {
+            var insightlyData = {
+                "contactinfos": [
+                    {
+                        "type": "email",
+                        "subtype": null,
+                        "label": "personal",
+                        "detail": "" // Parsed out from form
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag_name": "CE MEMBER" // Custom tags here
+                    }
+                ],
+            };
+
+            insightlyData.contactinfos[0].detail = signedInUserInfo.email;
+
+            $.ajax({
+                method: 'PUT',
+                url: INSIGHTLY_PROXY_URL + 'Contacts',
+                data: insightlyData,
+                success: function(data, textStatus) {
+                    console.log('[Custom Script] Good');
+                    console.log('[Custom Script] Got', data, 'from insightly');
+                    console.log('[Custom Script] Got', textStatus, 'from insightly');
+
+                    var newUid = data.CONTACT_ID;
+
+                    signedInUserInfo.insightlyUid = newUid;
+
+                    userRef.child(signedInUserInfo.firebaseUid).child('insightlyUid').set(newUid, function(error) {
+                        if (error) {
+                            console.log('[Custom Script] Failed at adding insightlyUid');
+                        }
+                        else {
+                            console.log('[Custom Script] Adding insightlyUid success');
+                        }
+                    });
+                },
+                error: function(xhr, status, err) {
+                    console.log('[Custom Script] Issue with connecting to insightly');
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(err);
+                }
+            });
+
+        }
+
         function handleUserData(snapshot) {
             var data = snapshot.val();
 
             if (!data) {
                 console.log('[Custom Script] User has no data');
+                initializeInsightlyAccount();
                 return;
             }
 
             console.log('[Custom Script] Got updated user data:', data);
+
+            if (!data.insightlyUid) {
+                console.log('[Custom Script] Logged in user didn\'t have a linked Insightly account');
+                initializeInsightlyAccount();
+            }
 
             signedInUserInfo.insightlyUid = data.insightlyUid;
 
@@ -175,7 +232,7 @@ $(function() {
                         }
                     });
 
-                    sendDataToInsightly($form);
+
                 }
             });
         }
@@ -424,7 +481,7 @@ $(function() {
                 var elemInsightlyStoragePath = mapper[elemId];
 
                 if (!elemInsightlyStoragePath) {
-                    console.log('Didn\'t recognize:', elemId);
+                    console.log('Parsing form for Insightly, didn\'t recognize:', elemId);
                     return;
                 }
 
