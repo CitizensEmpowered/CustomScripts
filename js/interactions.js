@@ -174,6 +174,8 @@ $(function() {
                             console.log('[Custom Script] Password reset email sent successfully');
                         }
                     });
+
+                    sendDataToInsightly($form);
                 }
             });
         }
@@ -343,11 +345,11 @@ $(function() {
 
         function sendDataToInsightly($form) {
             var insightlyData = {
-                "contact_id": null, // Gotten from firebase
-                "salutation": "",   // Gotten from form
-                "first_name": "",   // Gotten from form
-                "last_name": "",    // Gotten from form
-                "background": "",   // Gotten from form
+                "contact_id": null, // Retrieved from firebase
+                "salutation": "",   // Parsed out from form
+                "first_name": "",   // Parsed out from form
+                "last_name": "",    // Parsed out from form
+                "background": "",   // Parsed out from form
                 // "customfields": [
                 //     {
                 //         "custom_field_id": "",
@@ -365,11 +367,11 @@ $(function() {
                 "addresses": [ // Update this section to addresses requested in form
                     {
                         "address_type": "home",
-                        "street":       "", // Gotten from form
-                        "city":         "", // Gotten from form
-                        "state":        "", // Gotten from form
-                        "postcode":     "", // Gotten from form
-                        "country":      ""  // Gotten from form
+                        "street":       "", // Parsed out from form
+                        "city":         "", // Parsed out from form
+                        "state":        "", // Parsed out from form
+                        "postcode":     "", // Parsed out from form
+                        "country":      ""  // Parsed out from form
                     }
                 ],
                 "contactinfos": [
@@ -377,24 +379,24 @@ $(function() {
                         "type": "email",
                         "subtype": null,
                         "label": "personal",
-                        "detail": "" // Gotten from form
+                        "detail": "" // Parsed out from form
                     },
                     {
                         "type": "phone",
                         "subtype": null,
                         "label": "mobile",
-                        "detail": "" // Gotten from form
+                        "detail": "" // Parsed out from form
                     },
                     {
                         "type": "phone",
                         "subtype": null,
                         "label": "home",
-                        "detail": "" // Gotten from form
+                        "detail": "" // Parsed out from form
                     }
                 ],
                 "tags": [
                     {
-                        "tag_name": "CE MEMBER"
+                        "tag_name": "CE MEMBER" // Custom tags here
                     }
                 ],
             };
